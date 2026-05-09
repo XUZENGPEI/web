@@ -1,0 +1,12 @@
+{
+  "name": "nav-dashboard",
+  "version": "1.0.0",
+  "description": "网址导航与任务管理 - 自建服务器同步版",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

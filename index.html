@@ -426,6 +426,14 @@
             gap: 3px;
         }
         .task-due.overdue { color: var(--danger); }
+        .task-done-time {
+            font-size: 11px;
+            color: var(--success);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
         .task-del {
             color: rgba(255,255,255,0.15);
             cursor: pointer;
@@ -1186,8 +1194,7 @@
                 <div class="task-header-left">
                     <h3><i class="fas fa-tasks" style="margin-right:4px;color:var(--accent)"></i>今日待办</h3>
                     <div class="task-filters">
-                        <button class="task-filter active" data-filter="all" onclick="setTaskFilter('all')">全部</button>
-                        <button class="task-filter" data-filter="active" onclick="setTaskFilter('active')">进行中</button>
+                        <button class="task-filter active" data-filter="active" onclick="setTaskFilter('active')">进行中</button>
                         <button class="task-filter" data-filter="done" onclick="setTaskFilter('done')">已完成</button>
                     </div>
                 </div>
@@ -1333,7 +1340,7 @@ let editMode = false;
 let currentEditIndex = null;
 let isAddMode = false;
 let currentCategory = '全部';
-let taskFilter = 'all';
+let taskFilter = 'active';
 let sortableInstance = null;
 let toastTimer = null;
 let chartYear = new Date().getFullYear();
@@ -1348,6 +1355,57 @@ const taskModal = document.getElementById('task-modal');
 const backTop = document.getElementById('backTop');
 const editBtn = document.getElementById('editBtn');
 const body = document.body;
+
+// ============================================================
+//  数据同步（服务器模式）
+// ============================================================
+const IS_SERVER = window.location.protocol.startsWith('http');
+
+async function syncToServer() {
+    if (!IS_SERVER) return;
+    try {
+        const res = await fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ navData, taskData })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+    } catch(e) { /* server unreachable, local only */ }
+}
+
+async function loadFromServer() {
+    if (!IS_SERVER) return false;
+    try {
+        const res = await fetch('/api/data');
+        if (!res.ok) return false;
+        const data = await res.json();
+        if (data.navData && Array.isArray(data.navData) && data.navData.length > 0) {
+            navData = data.navData.map(item => ({ ...item, category: item.category || '常用' }));
+        }
+        if (data.taskData && Array.isArray(data.taskData) && data.taskData.length > 0) {
+            taskData = data.taskData.map(item => ({
+                ...item,
+                projectType: item.projectType || 'general',
+                dueDate: item.dueDate || '',
+                createdAt: item.createdAt || Date.now(),
+                completedAt: item.completedAt || (item.done ? Date.now() : undefined)
+            }));
+        }
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
+function saveNavData() {
+    saveNavData();
+    syncToServer();
+}
+
+function saveTaskData() {
+    saveTaskData();
+    syncToServer();
+}
 
 // ============================================================
 //  工具
@@ -1417,11 +1475,19 @@ function renderHomeTask() {
     list.innerHTML = '';
 
     let filtered = [...taskData];
-    if (taskFilter === 'active') filtered = filtered.filter(t => !t.done);
-    else if (taskFilter === 'done') filtered = filtered.filter(t => t.done);
+    if (taskFilter === 'active') {
+        filtered = filtered.filter(t => !t.done);
+        // Sort active: by priority (high > medium > low)
+        const priorityWeight = { high: 3, medium: 2, low: 1 };
+        filtered.sort((a, b) => (priorityWeight[computePriority(b)] || 0) - (priorityWeight[computePriority(a)] || 0));
+    } else if (taskFilter === 'done') {
+        filtered = filtered.filter(t => t.done);
+        // Sort done: by completedAt descending
+        filtered.sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+    }
 
     if (filtered.length === 0) {
-        const msgs = { all: '暂无任务，点击"添加"开始', active: '没有进行中的任务', done: '还没有完成的任务' };
+        const msgs = { active: '没有进行中的任务', done: '还没有完成的任务' };
         list.innerHTML = '<div class="task-empty"><i class="fas fa-inbox"></i>' + msgs[taskFilter] + '</div>';
         updateStats();
         return;
@@ -1435,6 +1501,17 @@ function renderHomeTask() {
         const compPriority = computePriority(item);
         const priorityLabel = { high: '高', medium: '中', low: '低' };
         const badgeClass = 'badge-' + compPriority;
+
+        // Completion time for done items
+        let doneHtml = '';
+        if (item.done && item.completedAt) {
+            const cd = new Date(item.completedAt);
+            const cm = (cd.getMonth()+1).toString().padStart(2,'0');
+            const cd_d = cd.getDate().toString().padStart(2,'0');
+            const ch = cd.getHours().toString().padStart(2,'0');
+            const cmin = cd.getMinutes().toString().padStart(2,'0');
+            doneHtml = '<span class="task-done-time"><i class="far fa-check-circle"></i>' + cm + '-' + cd_d + ' ' + ch + ':' + cmin + '</span>';
+        }
 
         let dueHtml = '';
         if (item.dueDate) {
@@ -1454,6 +1531,7 @@ function renderHomeTask() {
 
         div.innerHTML = `
             <input type="checkbox" class="task-check" ${item.done ? 'checked' : ''} onchange="toggleHomeTask(${idx})">
+            ${doneHtml}
             <span class="task-content">${escapeHtml(item.content)}</span>
             <span class="task-badge ${badgeClass}">${priorityLabel[compPriority] || '中'}</span>
             ${dueHtml} ${createdHtml}
@@ -1684,7 +1762,7 @@ function saveNewTask() {
         dueDate: document.getElementById('newTaskDue').value || '',
         createdAt: Date.now()
     });
-    localStorage.setItem('taskData', JSON.stringify(taskData));
+    saveTaskData();
     renderHomeTask();
     renderTaskOverview();
     renderTaskChart();
@@ -1700,7 +1778,7 @@ function toggleHomeTask(idx) {
     } else {
         delete taskData[idx].completedAt;
     }
-    localStorage.setItem('taskData', JSON.stringify(taskData));
+    saveTaskData();
     renderHomeTask();
     renderTaskOverview();
     renderTaskChart();
@@ -1710,7 +1788,7 @@ function toggleHomeTask(idx) {
 
 function delHomeTask(idx) {
     taskData.splice(idx, 1);
-    localStorage.setItem('taskData', JSON.stringify(taskData));
+    saveTaskData();
     renderHomeTask();
     renderTaskOverview();
     renderTaskChart();
@@ -1861,7 +1939,7 @@ function initSortable() {
             });
             navData = newOrder.map(idx => navData[idx]);
 
-            localStorage.setItem('navData', JSON.stringify(navData));
+            saveNavData();
             renderCards();
         }
     });
@@ -1925,34 +2003,39 @@ function populateCategorySelect() {
 function closeModal() { modal.classList.remove('active'); }
 
 function saveCard() {
-    const name = document.getElementById('card-name').value.trim();
-    const url = document.getElementById('card-url').value.trim();
-    const color = document.getElementById('card-color').value.trim();
-    const category = document.getElementById('card-category').value;
-    const iconData = document.getElementById('iconPreview').dataset.iconData || '';
+    try {
+        const name = document.getElementById('card-name').value.trim();
+        const url = document.getElementById('card-url').value.trim();
+        const color = document.getElementById('card-color').value.trim();
+        const category = document.getElementById('card-category').value;
+        const iconPrev = document.getElementById('iconPreview');
+        const iconData = iconPrev ? (iconPrev.dataset.iconData || '') : '';
 
-    if (!name) { showToast('请输入网站名称！', 'warning'); return; }
-    if (!url) { showToast('请输入网站网址！', 'warning'); return; }
+        if (!name) { showToast('请输入网站名称！', 'warning'); return; }
+        if (!url) { showToast('请输入网站网址！', 'warning'); return; }
 
-    const newCard = { name, url, color: color || '#0088dd', category: category || '常用' };
-    if (iconData) newCard.iconData = iconData;
-    else delete newCard.iconData;
+        const newCard = { name, url, color: color || '#0088dd', category: category || '常用' };
+        if (iconData) newCard.iconData = iconData;
+        else delete newCard.iconData;
 
-    if (isAddMode) navData.push(newCard);
-    else navData[currentEditIndex] = newCard;
+        if (isAddMode) navData.push(newCard);
+        else navData[currentEditIndex] = newCard;
 
-    localStorage.setItem('navData', JSON.stringify(navData));
-    renderCards();
-    renderCategories();
-    closeModal();
-    showToast(isAddMode ? '网站已添加' : '网站已更新', 'success');
+        saveNavData();
+        renderCards();
+        renderCategories();
+        closeModal();
+        showToast(isAddMode ? '网站已添加' : '网站已更新', 'success');
+    } catch(e) {
+        showToast('保存失败: ' + e.message, 'warning');
+    }
 }
 
 function deleteCard(index) {
     if (!editMode) return;
     const item = navData[index];
     navData.splice(index, 1);
-    localStorage.setItem('navData', JSON.stringify(navData));
+    saveNavData();
     renderCards();
     renderCategories();
     showToast('已删除: ' + item.name, 'info');
@@ -2002,11 +2085,11 @@ function importData(event) {
             const data = JSON.parse(e.target.result);
             if (data.navData && Array.isArray(data.navData)) {
                 navData = data.navData;
-                localStorage.setItem('navData', JSON.stringify(navData));
+                saveNavData();
             }
             if (data.taskData && Array.isArray(data.taskData)) {
                 taskData = data.taskData;
-                localStorage.setItem('taskData', JSON.stringify(taskData));
+                saveTaskData();
             }
             renderCards();
             renderCategories();
@@ -2026,29 +2109,35 @@ function importData(event) {
 // ============================================================
 //  数据加载 & 兼容旧数据
 // ============================================================
-function loadData() {
-    const localNav = localStorage.getItem('navData');
-    if (localNav) {
-        try {
-            const parsed = JSON.parse(localNav);
-            navData = parsed.map(item => ({
-                ...item,
-                category: item.category || '常用'
-            }));
-        } catch(e) { /* use defaults */ }
-    }
+async function loadData() {
+    // Try loading from server first
+    const serverLoaded = await loadFromServer();
 
-    const localTask = localStorage.getItem('taskData');
-    if (localTask) {
-        try {
-            taskData = JSON.parse(localTask).map(item => ({
-                ...item,
-                projectType: item.projectType || 'general',
-                dueDate: item.dueDate || '',
-                createdAt: item.createdAt || Date.now(),
-                completedAt: item.completedAt || (item.done ? Date.now() : undefined)
-            }));
-        } catch(e) { taskData = []; }
+    if (!serverLoaded) {
+        // Fallback to localStorage
+        const localNav = localStorage.getItem('navData');
+        if (localNav) {
+            try {
+                const parsed = JSON.parse(localNav);
+                navData = parsed.map(item => ({
+                    ...item,
+                    category: item.category || '常用'
+                }));
+            } catch(e) { /* use defaults */ }
+        }
+
+        const localTask = localStorage.getItem('taskData');
+        if (localTask) {
+            try {
+                taskData = JSON.parse(localTask).map(item => ({
+                    ...item,
+                    projectType: item.projectType || 'general',
+                    dueDate: item.dueDate || '',
+                    createdAt: item.createdAt || Date.now(),
+                    completedAt: item.completedAt || (item.done ? Date.now() : undefined)
+                }));
+            } catch(e) { taskData = []; }
+        }
     }
 
     renderCards();
