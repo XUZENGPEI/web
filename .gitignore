@@ -1,3 +1,6 @@
 node_modules/
 data.json
 *.log
+历时/
+*.bak
+nav-backup-*.json
