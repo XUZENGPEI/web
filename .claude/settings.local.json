@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"D:\\\\AI-tools\\\\网址导航\\\\index.html\")",
+      "PowerShell(node --version)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:3000/api/data\" -Method GET | ConvertTo-Json -Depth 3)",
+      "PowerShell(winget install *)",
+      "PowerShell(git *)"
+    ]
+  }
+}

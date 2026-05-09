@@ -1,0 +1,207 @@
+{
+  "navData": [
+    {
+      "name": "公司OA",
+      "url": "http://10.20.123.5/wui/index.html#/main/portal/portal-9-1?menuIds=0,9&menuPathIds=0,9&_key=kqsob8",
+      "color": "#4a90e2",
+      "category": "常用"
+    },
+    {
+      "name": "引大地质V3.0",
+      "url": "D:\\AI-tools\\地质条件数据可视化\\V3.0.HTML",
+      "color": "#6f42c1",
+      "category": "常用"
+    },
+    {
+      "name": "TBM选型8.0",
+      "url": "D:\\AI-tools\\地质条件数据可视化\\V8.HTML",
+      "color": "#0088dd",
+      "category": "常用"
+    },
+    {
+      "name": "样式删除",
+      "url": "file:///D:/AI-tools/word%E6%A0%B7%E5%BC%8F%E5%88%A0%E9%99%A4%E5%B7%A5%E5%85%B7/%E6%A0%B7%E5%BC%8F%E5%88%A0%E9%99%A4%E5%99%A8.html",
+      "color": "#0088dd",
+      "category": "常用"
+    },
+    {
+      "name": "deepseek",
+      "url": "https://chat.deepseek.com/",
+      "color": "#0088dd",
+      "category": "常用"
+    },
+    {
+      "name": "四川院",
+      "url": "https://www.scswhi.com.cn/",
+      "color": "#005699",
+      "category": "常用"
+    },
+    {
+      "name": "四川图书馆",
+      "url": "https://portal.sclib.cn/interlibSSO/main/index.jsp",
+      "color": "#4a90e2",
+      "category": "常用"
+    },
+    {
+      "name": "B站",
+      "url": "https://www.bilibili.com",
+      "color": "#ff69b4",
+      "category": "常用"
+    },
+    {
+      "name": "百度",
+      "url": "https://www.baidu.com",
+      "color": "#4a90e2",
+      "category": "常用"
+    },
+    {
+      "name": "豆包",
+      "url": "https://www.doubao.com",
+      "color": "#20c997",
+      "category": "常用"
+    },
+    {
+      "name": "全国地理信息系统",
+      "url": "https://www.webmap.cn/main.do?method=index",
+      "color": "#4a90e2",
+      "category": "常用"
+    },
+    {
+      "name": "北森学习",
+      "url": "https://www.italent.cn/Login?ReturnUrl=https%3a%2f%2fwww.italent.cn%2fportal%2fconvoy%2fLearning%3fquark_s%3de2057ae16f2fbd9ff41f8b4b5f09346bdbfbb9277ad331b4df248e3f7ef238a7%26_qsrcapp%3dItalent%26_qrt%3dhtml%26_userSpecialType%3d1%26xpuid%3d628532685%26_menuId%3d21a3043f-430a-46ed-93e5-0dad234799af%26_menuRootId%3d9027d6ad-d015-4c62-83d8-3fddb015b59d%26_pageType%3dlegacy%26_pageTitle%3d%25E5%25AD%25A6%25E4%25B9%25A0%25E9%25A6%2596%25E9%25A1%25B5%26_restoreHref%3dhttps%253A%252F%252Fcloud.italent.cn%252FPageHome%252FIndex%253Fproduct%253DLearning%2526keyName%253DNusion%2526pageCode%253DLearningNewHomepage%2526appCode%253DLearning%2523%252FviewDynamic%253Fshadow_context%253D%25257BappModel%25253A%252522italent%252522%25252Cuppid%25253A%2525221%252522%25257D&lt=zh_CN#widget/italent?iTalentFrameType=iframe&iTalentFrame=https%3A%2F%2Fcloud.italent.cn%2FPageHome%2FIndex%3Fproduct%3DLearning%26keyName%3DNusion%26pageCode%3DLearningNewHomepage%26appCode%3DLearning%23%2FviewDynamic%3Fshadow_context%3D%257BappModel%253A%2522italent%2522%252Cuppid%253A%25221%2522%257D",
+      "color": "#4a90e2",
+      "category": "常用"
+    },
+    {
+      "name": "国家标准服务平台",
+      "url": "https://openstd.samr.gov.cn/bzgk/std/std_list?p.p1=0&p.p90=circulation_date&p.p91=desc&p.p2=%20GB/T%20748",
+      "color": "#4a90e2",
+      "category": "常用"
+    },
+    {
+      "name": "四川省公共资源交易",
+      "url": "https://ggzyjy.sc.gov.cn/",
+      "color": "#0088dd",
+      "category": "常用"
+    },
+    {
+      "name": "突涌水V2.0",
+      "url": "D:\\AI-tools\\隧洞突涌水处理程序\\V2.0.html",
+      "color": "#0088dd",
+      "category": "常用"
+    },
+    {
+      "name": "共享资料",
+      "url": "https://www.kdocs.cn/l/caEL0aXtmdRp",
+      "color": "#0088dd",
+      "category": "工作"
+    },
+    {
+      "name": "天全沿线图",
+      "url": "https://www.720yun.com/vr/a9djt7mnva3",
+      "color": "#0088dd",
+      "category": "工作"
+    }
+  ],
+  "taskData": [
+    {
+      "content": "地质配合施工支洞事宜",
+      "done": true,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "讨论隧洞初期支护计算表格",
+      "done": true,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "讨论支洞工程量计算表格",
+      "done": true,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "TBM选型及技术参数专题报告",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "紫坪铺水库清淤现场踏勘、会议申请、专家费等事宜",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "紫坪铺报价",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "安排支洞及主洞工程量汇总人员",
+      "done": true,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "5月6日完成武安山料场第二期报告",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "5月10日完成TBM选型及技术参数报告",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "5.6日宣传初期支护计算",
+      "done": true,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778040161384
+    },
+    {
+      "content": "二郎山隧洞2#施工支洞变更",
+      "done": false,
+      "priority": "high",
+      "dueDate": "",
+      "createdAt": 1778040918996
+    },
+    {
+      "content": "17-19日北京咨询会",
+      "done": false,
+      "priority": "low",
+      "dueDate": "2026-05-17",
+      "createdAt": 1778041274212
+    },
+    {
+      "content": "5月7日专家看武安山料场",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778061285588
+    },
+    {
+      "content": "给规划院专家发武安山料场的成果",
+      "done": false,
+      "priority": "medium",
+      "dueDate": "",
+      "createdAt": 1778061393266
+    }
+  ],
+  "exportTime": "2026/5/6 19:05:43"
+}
