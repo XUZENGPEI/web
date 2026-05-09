@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隧洞突涌水计算</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf5 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .main-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            margin-bottom: 5px;
+        }
+        .main-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 20px;
+            padding: 14px;
+            background: linear-gradient(to right, #dbeafe, #bfdbfe);
+            border-radius: 12px;
+        }
+        .nav-tabs {
+            border: none;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: bold;
+            color: #475569;
+            margin-right: 6px;
+            transition: all 0.2s;
+        }
+        .nav-tabs .nav-link.active {
+            background: #2563eb;
+            color: #fff !important;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.15);
+        }
+        .tab-pane {
+            position: relative;
+            z-index: 10 !important;
+        }
+        .section-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: #2563eb; }
+        .btn-success { background: #16a34a; }
+        .btn-warning { background: #ea580c; color: white; }
+        .btn-purple { background: #9333ea; color: white; }
+        .btn-info { background: #06b6d4; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        
+        .form-select,.form-control { border-radius: 8px; padding: 8px 12px; }
+        .status-box { background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .chart-box { width: 100%; height: 380px; background: white; border-radius: 12px; padding: 10px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05); }
+        .stats-box { background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        pre { white-space: pre-wrap; font-size: 14px; line-height: 1.5; display: none; }
+        .table-responsive { 
+            max-height: 600px; 
+            overflow: auto; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 99 !important;
+            background:#fff;
+        }
+        #resultTable {
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 999 !important;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #resultTable th, #resultTable td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        #resultTable th {
+            background: #1e40af;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        table { font-size: 13px; }
+        
+        .visual-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        .visual-chart {
+            width: 100%;
+            height: 260px !important;
+        }
+        .depth-stat-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 4px solid #2563eb;
+            gap:12px;
+        }
+        .depth-stat-card .highlight {
+            font-size: 22px;
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .depth-stat-card span {
+            font-size: 15px;
+            font-weight: bold;
+            font-family: "Microsoft YaHei", sans-serif;
+            color:#333;
+        }
+        .chart-config-panel {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .config-item {
+            margin-bottom: 12px;
+        }
+        .config-item label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            color: #334155;
+        }
+        .stat-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+        .stat-col {
+            flex: 1;
+            min-width: 280px;
+            background: #fafcff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #e9eef3;
+        }
+        .stat-col .sub-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #1f3a8a;
+            border-bottom: 2px solid #cbdff2;
+            display: inline-block;
+            width: 100%;
+        }
+        .depth-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .depth-summary-table th {
+            background: #3b82f6;
+            color: #fff;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+        }
+        .depth-summary-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+        }
+        .detail-row { display: none; }
+        .chart-sm {
+            height: 280px;
+            width: 100%;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 768px) {
+            .main-title { font-size: 20px; }
+            .nav-tabs .nav-link { padding: 8px 12px; font-size: 14px; }
+            .chart-box { height: 320px; }
+            .stat-col { min-width: 100%; }
+        }
+        .axis-info {
+            font-size: 12px;
+            color: #4b5563;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .download-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #d9d9d9;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .download-icon-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-title">隧洞突涌水计算软件</div>
+        
+        <ul class="nav nav-tabs" id="mainTab">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#import">数据导入</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#plot">断面可视化</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#result">计算结果表</a></li>
+        </ul>
+        
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="import">
+                <div class="main-card">
+                    <div class="section-title">数据导入</div>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;">
+                    <button id="upload" class="btn btn-primary mb-3">选择Excel文件导入</button>
+                    <p id="importTip" class="text-muted">未导入</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="section-title">计算桩号范围设置</div>
+                            <div class="row g-3 mb-3 align-items-center">
+                                <div class="col-auto">
+                                    <label>起始桩号</label>
+                                    <input id="calcStartPk" class="form-control" style="width:140px" value="0">
+                                </div>
+                                <div class="col-auto">
+                                    <label>终点桩号</label>
+                                    <input id="calcEndPk" class="form-control" style="width:140px" value="1000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="section-title">计算距离</div>
+                            <div class="row g-3 mb-3 align-items-center">
+                                <div class="col-auto">
+                                    <label>掌子面长度</label>
+                                    <input id="zhangzi" class="form-control" style="width:120px" value="50">
+                                </div>
+                                <div class="col-auto">
+                                    <label>初支长度</label>
+                                    <input id="chuzhi" class="form-control" style="width:120px" value="100">
+                                </div>
+                                <div class="col-auto">
+                                    <label>衬砌长度</label>
+                                    <input id="licheng" class="form-control" style="width:120px" value="200">
+                                </div>
+                            </div>
+                        </div>
+						
+						 <div class="col-md-6">
+                            <div class="section-title">涌水界限设置</div>
+                            <div class="row g-3">
+                                <div class="col-auto">
+                                    <label>掌子面阈值</label>
+                                    <input id="w1" class="form-control" style="width:100px" value="10">
+                                </div>
+                                <div class="col-auto">
+                                    <label>初支阈值</label>
+                                    <input id="w2" class="form-control" style="width:100px" value="20">
+                                </div>
+                                <div class="col-auto">
+                                    <label>衬砌阈值</label>
+                                    <input id="w3" class="form-control" style="width:100px" value="30">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title mt-4">数据加载状态</div>
+                    <div id="status" class="row status-box"></div>
+                    
+                    <div class="d-flex gap-3 mt-4">
+                        <button id="processData" class="btn btn-success flex-grow-1">数据处理</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="plot">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="section-title mb-0">沿程涌水量</div>
+                    <div class="axis-info">📊</div>
+                </div>
+                <div class="chart-box mb-4" id="waterChart"></div>
+                <div class="attr-dist-card mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="section-title mb-0">沿程清/污水量</div>
+                        <button id="downloadAttrImg" class="download-icon-btn" title="下载分布图">
+                            <i class="bi bi-download"></i>
+                        </button>
+                    </div>
+                    <div class="chart-box" id="waterTypeChart" style="height:320px"></div>
+                </div>
+                
+                <div class="stat-row">
+                    <div class="stat-col">
+                        <div class="sub-title">📊 正常涌水分布</div>
+                        <div id="normalStatChart" style="height: 280px; width:100%;"></div>
+                        <table class="depth-summary-table" id="normalSummaryTable">
+                            <thead><tr><th>涌水区间(m³/d·m)</th><th>长度(m)</th><th>占比(%)</th></tr></thead>
+                            <tbody id="normalTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="stat-col">
+                        <div class="sub-title">⚠️ 最大涌水分布</div>
+                        <div id="maxStatChart" style="height: 280px; width:100%;"></div>
+                        <table class="depth-summary-table" id="maxSummaryTable">
+                            <thead><tr><th>涌水区间(m³/d·m)</th><th>长度(m)</th><th>占比(%)</th></tr></thead>
+                            <tbody id="maxTableBody"></tbody>
+                        </table>
+                    </div>
+					                    <div class="col-4 mx-auto">
+                        <div class="depth-stat-card">
+                            <div><span>最大最大涌水(m³/d·m)</span><span class="highlight" id="maxMaxWater">-</span></div>
+                            <div><span>最大正常涌水(m³/d·m)</span><span class="highlight" id="maxNormal">-</span></div>
+                            <div><span>最大污水量(m³/h)</span><span class="highlight" id="maxDirty">-</span></div>
+                            <div><span>最大清水量(m³/h)</span><span class="highlight" id="maxClean">-</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="result">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button id="export" class="btn btn-purple">导出保存为Excel</button>
+                    <span id="rowCount" class="text-muted"></span>
+                </div>
+                <div class="table-responsive">
+                    <table id="resultTable" class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>起始桩号</th>
+                                <th>终点桩号</th>
+                                <th>正常涌水(m³/d·m)</th>
+                                <th>最大涌水(m³/d·m)</th>
+                                <th>掌子面涌水</th>
+                                <th>初支涌水</th>
+                                <th>衬砌涌水</th>
+                                <th>初支清水量(m³/h)</th>
+                                <th>衬砌清水量(m³/h)</th>
+                                <th>污水量(m³/h)</th>
+                                <th>总清水量(m³/h)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultTableBody">
+                            <tr><td colspan="11" style="text-align:center">暂无数据，请先点击"数据处理"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <script>
+        let wbData = {};
+        let finalTable = [];
+        let mergeTable = [];
+        let waterStatsData = { categories:[], values:[], maxNormal:0, maxMax:0, maxDirty:0, maxClean:0 };
+        let maxStatsData = { categories:[], values:[] };
+        let currentMinPk = 0, currentMaxPk = 0;
+
+        let waterChart = echarts.init(document.getElementById('waterChart'));
+        let waterTypeChart = echarts.init(document.getElementById('waterTypeChart'));
+        let normalStatChart = echarts.init(document.getElementById('normalStatChart'));
+        let maxStatChart = echarts.init(document.getElementById('maxStatChart'));
+
+        window.addEventListener('resize', () => {
+            waterChart.resize();
+            waterTypeChart.resize();
+            normalStatChart.resize();
+            maxStatChart.resize();
+        });
+
+        document.querySelector('a[href="#plot"]').addEventListener('shown.bs.tab', () => {
+            if(finalTable.length>0){
+                setTimeout(() => {
+                    waterChart.resize();
+                    waterTypeChart.resize();
+                    normalStatChart.resize();
+                    maxStatChart.resize();
+                    renderAllCharts();
+                }, 100);
+            }
+        });
+
+        function loadConfig(){
+            let cfg=JSON.parse(localStorage.getItem('waterCfg')||
+                '{"calcStartPk":"0","calcEndPk":"1000","zhangzi":"50","chuzhi":"100","licheng":"200","w1":"10","w2":"20","w3":"30"}');
+            $('#calcStartPk').val(cfg.calcStartPk);
+            $('#calcEndPk').val(cfg.calcEndPk);
+            $('#zhangzi').val(cfg.zhangzi);
+            $('#chuzhi').val(cfg.chuzhi);
+            $('#licheng').val(cfg.licheng);
+            $('#w1').val(cfg.w1);
+            $('#w2').val(cfg.w2);
+            $('#w3').val(cfg.w3);
+        }
+
+        function saveConfig(){
+            let cfg={
+                calcStartPk:$('#calcStartPk').val(),
+                calcEndPk:$('#calcEndPk').val(),
+                zhangzi:$('#zhangzi').val(),
+                chuzhi:$('#chuzhi').val(),
+                licheng:$('#licheng').val(),
+                w1:$('#w1').val(),
+                w2:$('#w2').val(),
+                w3:$('#w3').val()
+            };
+            localStorage.setItem('waterCfg',JSON.stringify(cfg));
+        }
+
+        function getWaterValue(sheet, s, e) {
+            if(!sheet || !sheet.length) return {normal:0, max:0};
+            for(let r of sheet){
+                if(!r || r.length < 8) continue;
+                let start=parseFloat(r[0]);
+                let end=parseFloat(r[1]);
+                if(isNaN(start)||isNaN(end)) continue;
+                if(start<=s && end>=e){
+                    let n1=parseFloat(r[3])||0;
+                    let n2=parseFloat(r[4])||0;
+                    let n3=parseFloat(r[5])||0;
+                    let m1=parseFloat(r[6])||0;
+                    let m2=parseFloat(r[7])||0;
+                    let normal = (n1+n2+n3)/3;
+                    let max = (m1+m2)/2;
+                    return {normal, max};
+                }
+            }
+            return {normal:0, max:0};
+        }
+
+        function limitVal(val, threshold){
+            return val > threshold ? threshold : val;
+        }
+
+        function mergeSameData(list){
+            if(!list.length) return [];
+            let res = [];
+            let curr = {...list[0]};
+            for(let i=1;i<list.length;i++){
+                let item = list[i];
+                if(
+                    Math.abs(item.normal - curr.normal) < 0.01 &&
+                    Math.abs(item.max - curr.max) < 0.01 &&
+                    Math.abs(item.valZhangzi - curr.valZhangzi) < 0.01 &&
+                    Math.abs(item.valChuzhi - curr.valChuzhi) < 0.01 &&
+                    Math.abs(item.valLicheng - curr.valLicheng) < 0.01
+                ){
+                    curr.pkEnd = item.pk + 1;
+                    curr.dirty = (curr.dirty + item.dirty) / 2;
+                    curr.cleanChuzhi = (curr.cleanChuzhi + item.cleanChuzhi) / 2;
+                    curr.cleanLicheng = (curr.cleanLicheng + item.cleanLicheng) / 2;
+                    curr.clean = (curr.clean + item.clean) / 2;
+                }else{
+                    res.push(curr);
+                    curr = {...item};
+                    curr.pkEnd = item.pk + 1;
+                }
+            }
+            res.push(curr);
+            return res;
+        }
+
+        $('#upload').click(() => $('#fileInput').click());
+        $('#fileInput').change(function (e) {
+            if (!e.target.files || e.target.files.length === 0) return;
+            let reader = new FileReader();
+            reader.onload = function (ev) {
+                try {
+                    let wb = XLSX.read(ev.target.result, { type: 'binary' });
+                    let sheets = ["涌水","分段"];
+                    let statusHtml = '';
+                    sheets.forEach(s => {
+                        if (wb.SheetNames.includes(s)) {
+                            wbData[s] = XLSX.utils.sheet_to_json(wb.Sheets[s], { header: 1 });
+                            statusHtml += `<div class='col-4'>${s}：✅ 已加载 (${wbData[s].length}行)</div>`;
+                        } else {
+                            wbData[s] = null;
+                            statusHtml += `<div class='col-4'>${s}：❌ 无此表</div>`;
+                        }
+                    });
+                    $('#status').html(statusHtml);
+                    $('#importTip').text('导入完成，请点击"数据处理"');
+                } catch (err) {
+                    alert('读取失败：' + err.message);
+                }
+            };
+            reader.readAsBinaryString(e.target.files[0]);
+        });
+
+        function renderNormalStats() {
+            let totalLength = waterStatsData.values.reduce((a,b)=>a+b,0);
+            let pieData = waterStatsData.categories.map((name, idx) => ({
+                name, value: waterStatsData.values[idx],
+                itemStyle: { color: ['#3b82f6','#10b981','#f59e0b','#ef4444'][idx%4] }
+            }));
+            normalStatChart.setOption({
+                title: { show: false },
+                tooltip: { trigger: 'item', formatter: '{b}: {c}m ({d}%)' },
+                legend: { orient: 'vertical', left: 'left', textStyle: { fontSize: 11 } },
+                series: [{
+                    type: 'pie', radius: ['45%','70%'], center: ['50%','55%'],
+                    data: pieData, label: { show: true, formatter: '{d}%', fontSize: 11 }
+                }]
+            });
+            let tbody = $('#normalTableBody'); tbody.empty();
+            pieData.forEach(item => {
+                let percent = totalLength > 0 ? ((item.value/totalLength)*100).toFixed(2) : '0';
+                tbody.append(`<tr><td>${item.name}</td><td>${item.value.toFixed(2)}</td><td>${percent}%</td></tr>`);
+            });
+        }
+
+        function renderMaxStats(baseRowsRaw, thresholds) {
+            if(!baseRowsRaw.length) return;
+            let maxValues = baseRowsRaw.map(r => r.max);
+            let sortedThres = [...thresholds].sort((a,b)=>a-b);
+            let categories = [];
+            let values = [];
+            let pre = 0;
+            sortedThres.forEach(b => {
+                let cnt = maxValues.filter(v => v > pre && v <= b).length;
+                categories.push(`${pre.toFixed(1)}~${b.toFixed(1)}`);
+                values.push(cnt);
+                pre = b;
+            });
+            let lastCnt = maxValues.filter(v => v > pre).length;
+            categories.push(`>${pre.toFixed(1)}`);
+            values.push(lastCnt);
+            maxStatsData.categories = categories;
+            maxStatsData.values = values;
+            let totalLen = values.reduce((a,b)=>a+b,0);
+            let pieMaxData = categories.map((name,idx) => ({ name, value: values[idx], itemStyle: { color: ['#f97316','#eab308','#ec489a','#8b5cf6'][idx%4] } }));
+            maxStatChart.setOption({
+                title: { show: false },
+                tooltip: { trigger: 'item', formatter: '{b}: {c}m ({d}%)' },
+                legend: { orient: 'vertical', left: 'left', textStyle: { fontSize: 11 } },
+                series: [{ type: 'pie', radius: ['45%','70%'], center: ['50%','55%'], data: pieMaxData, label: { show: true, formatter: '{d}%', fontSize: 11 } }]
+            });
+            let tbodyMax = $('#maxTableBody'); tbodyMax.empty();
+            pieMaxData.forEach(item => {
+                let percent = totalLen > 0 ? ((item.value/totalLen)*100).toFixed(2) : '0';
+                tbodyMax.append(`<tr><td>${item.name}</td><td>${item.value.toFixed(2)}</td><td>${percent}%</td></tr>`);
+            });
+        }
+
+        function renderResultTable() {
+            let tbody = $('#resultTableBody');
+            tbody.empty();
+            
+            if(!mergeTable || mergeTable.length === 0) {
+                tbody.append('<tr><td colspan="11" style="text-align:center">暂无数据，请先点击"数据处理"</td></tr>');
+                $('#rowCount').text('共 0 条数据');
+                return;
+            }
+            
+            for(let r of mergeTable) {
+                let row = `<tr>
+                    <td>${r.pk.toFixed(0)}</td>
+                    <td>${r.pkEnd.toFixed(0)}</td>
+                    <td>${r.normal.toFixed(2)}</td>
+                    <td>${r.max.toFixed(2)}</td>
+                    <td>${r.valZhangzi.toFixed(2)}</td>
+                    <td>${r.valChuzhi.toFixed(2)}</td>
+                    <td>${r.valLicheng.toFixed(2)}</td>
+                    <td>${r.cleanChuzhi.toFixed(2)}</td>
+                    <td>${r.cleanLicheng.toFixed(2)}</td>
+                    <td>${r.dirty.toFixed(2)}</td>
+                    <td>${r.clean.toFixed(2)}</td>
+                </tr>`;
+                tbody.append(row);
+            }
+            $('#rowCount').text(`共 ${mergeTable.length} 条合并数据`);
+        }
+
+        function renderAllCharts(){
+            if(finalTable.length===0) return;
+            let pkList = finalTable.map(r=>r[0]);
+            let minPk = Math.min(...pkList);
+            let maxPk = Math.max(...pkList);
+            currentMinPk = minPk; currentMaxPk = maxPk;
+            
+            let normalData = finalTable.map(r=>r[2]);
+            let maxData = finalTable.map(r=>r[3]);
+            let dirtyData = finalTable.map(r=>r[9]);
+            let cleanData = finalTable.map(r=>r[10]);
+            
+            let maxNormalVal = Math.max(...normalData);
+            let maxMaxVal = Math.max(...maxData);
+            let maxDirtyVal = Math.max(...dirtyData);
+            let maxCleanVal = Math.max(...cleanData);
+            let maxNormalIndex = normalData.findIndex(d=>d===maxNormalVal);
+            let maxMaxIndex = maxData.findIndex(d=>d===maxMaxVal);
+            let maxDirtyIndex = dirtyData.findIndex(d=>d===maxDirtyVal);
+            let maxCleanIndex = cleanData.findIndex(d=>d===maxCleanVal);
+
+            $('#maxMaxWater').text(maxMaxVal.toFixed(2));
+            $('#maxNormal').text(maxNormalVal.toFixed(2));
+            $('#maxDirty').text(maxDirtyVal.toFixed(2));
+            $('#maxClean').text(maxCleanVal.toFixed(2));
+
+            let normalPoints = finalTable.map(r=>[r[0], r[2]]);
+            let maxPoints = finalTable.map(r=>[r[0], r[3]]);
+            waterChart.setOption({
+                title:{text:'隧洞涌水量断面图',left:'center',textStyle:{fontSize:16,fontWeight:'bold'}},
+                tooltip:{trigger:'axis',formatter:function(params){ return `桩号: ${params[0].value[0]} m<br/>正常涌水: ${params[0].value[1]} m³/d·m<br/>最大涌水: ${params[1].value[1]} m³/d·m`; }},
+                legend:{data:['正常涌水','最大涌水'],bottom:0},
+                grid:{left:'3%',right:'4%',bottom:'10%',containLabel:true},
+                xAxis:{ type:'value', name:'桩号 (m)', nameLocation:'end', min: minPk, max: maxPk, axisLabel:{ fontSize:11 } },
+                yAxis:{ type:'value', name:'涌水量 (m³/d·m)' },
+                series:[
+                    { name:'正常涌水', type:'line', data:normalPoints, lineStyle:{width:2,color:'#5470c6'}, showSymbol:false },
+                    { name:'最大涌水', type:'line', data:maxPoints, lineStyle:{width:2,color:'#ee6666'}, showSymbol:false },
+                    { name:'最大正常涌水', type:'scatter', data:[[pkList[maxNormalIndex],maxNormalVal]], symbolSize:12, itemStyle:{color:'#5470c6'}, label:{show:true,formatter:`最大值:${maxNormalVal.toFixed(2)}`,position:'top'} },
+                    { name:'最大最大涌水', type:'scatter', data:[[pkList[maxMaxIndex],maxMaxVal]], symbolSize:12, itemStyle:{color:'#ee6666'}, label:{show:true,formatter:`最大值:${maxMaxVal.toFixed(2)}`,position:'top'} }
+                ]
+            });
+
+            let dirtyPoints = finalTable.map(r=>[r[0], r[9]]);
+            let cleanPoints = finalTable.map(r=>[r[0], r[10]]);
+            waterTypeChart.setOption({
+                title:{text:'清水量/污水量分布',left:'center',textStyle:{fontSize:16,fontWeight:'bold'}},
+                tooltip:{trigger:'axis',formatter:function(params){ return `桩号: ${params[0].value[0]} m<br/>${params[0].seriesName}: ${params[0].value[1]} m³/h<br/>${params[1].seriesName}: ${params[1].value[1]} m³/h`; }},
+                legend:{data:['污水量','清水量'],bottom:0},
+                grid:{left:'3%',right:'4%',bottom:'10%',containLabel:true},
+                xAxis:{ type:'value', name:'桩号 (m)', nameLocation:'end', min: minPk, max: maxPk, axisLabel:{ fontSize:11 } },
+                yAxis:{ type:'value', name:'水量 (m³/h)', nameLocation:'middle', nameGap:45 },
+                series:[
+                    { name:'污水量', type:'line', data:dirtyPoints, lineStyle:{width:2,color:'#f59e0b'}, showSymbol:false },
+                    { name:'清水量', type:'line', data:cleanPoints, lineStyle:{width:2,color:'#3b82f6'}, showSymbol:false },
+                    { name:'最大污水', type:'scatter', data:[[pkList[maxDirtyIndex],maxDirtyVal]], symbolSize:12, itemStyle:{color:'#f59e0b'}, label:{show:true,formatter:`最大值:${maxDirtyVal.toFixed(2)}`,position:'top',color:'#ea580c'} },
+                    { name:'最大清水', type:'scatter', data:[[pkList[maxCleanIndex],maxCleanVal]], symbolSize:12, itemStyle:{color:'#3b82f6'}, label:{show:true,formatter:`最大值:${maxCleanVal.toFixed(2)}`,position:'top',color:'#2563eb'} }
+                ]
+            });
+            renderNormalStats();
+        }
+
+        function doCalculate(){
+            saveConfig();
+            if(!wbData["涌水"]) { 
+                alert('请先导入Excel文件（需要包含"涌水"工作表）'); 
+                return false;
+            }
+            
+            let calcStart = parseFloat($('#calcStartPk').val())||0;
+            let calcEnd = parseFloat($('#calcEndPk').val())||1000;
+            let Lz = parseFloat($('#zhangzi').val())||0;
+            let Lc = parseFloat($('#chuzhi').val())||0;
+            let Wz = parseFloat($('#w1').val())||0;
+            let Wc = parseFloat($('#w2').val())||0;
+            let Wl = parseFloat($('#w3').val())||0;
+
+            let baseRows = [];
+            let maxPk = Math.max(calcStart, calcEnd);
+            let minPk = Math.min(calcStart, calcEnd);
+            
+            if(calcStart < calcEnd){
+                for(let pk=calcStart; pk<calcEnd; pk++){
+                    let w = getWaterValue(wbData["涌水"], pk, pk+1);
+                    let valZhangzi = limitVal(w.normal, Wz);
+                    let valChuzhi = limitVal(w.normal, Wc);
+                    let valLicheng = limitVal(w.normal, Wl);
+                    baseRows.push({ pk, pkEnd: pk+1, normal: w.normal, max: w.max, valZhangzi, valChuzhi, valLicheng, dirty:0, cleanChuzhi:0, cleanLicheng:0, clean:0 });
+                }
+            } else {
+                for(let pk=calcStart; pk>calcEnd; pk--){
+                    let w = getWaterValue(wbData["涌水"], pk, pk+1);
+                    let valZhangzi = limitVal(w.normal, Wz);
+                    let valChuzhi = limitVal(w.normal, Wc);
+                    let valLicheng = limitVal(w.normal, Wl);
+                    baseRows.push({ pk, pkEnd: pk+1, normal: w.normal, max: w.max, valZhangzi, valChuzhi, valLicheng, dirty:0, cleanChuzhi:0, cleanLicheng:0, clean:0 });
+                }
+            }
+            if(baseRows.length===0){ alert('桩号范围内无数据'); return false; }
+
+            if(calcStart < calcEnd){
+                baseRows.forEach(row=>{
+                    let dirtyStart = Math.max(row.pk - Lz, calcStart), dirtyEnd = row.pk;
+                    row.dirty = baseRows.filter(r=>r.pk>=dirtyStart && r.pk<dirtyEnd).reduce((s,r)=>s+r.valZhangzi,0)/24;
+                });
+                baseRows.forEach(row=>{
+                    let chuzhiStart = Math.max(row.pk - Lc, calcStart), chuzhiEnd = row.pk;
+                    row.cleanChuzhi = baseRows.filter(r=>r.pk>=chuzhiStart && r.pk<chuzhiEnd).reduce((s,r)=>s+r.valChuzhi,0)/24;
+                });
+                baseRows.forEach(row=>{
+                    let lichengEnd = row.pk - Lc;
+                    if(lichengEnd > calcStart){
+                        row.cleanLicheng = baseRows.filter(r=>r.pk>=calcStart && r.pk<lichengEnd).reduce((s,r)=>s+r.valLicheng,0)/24;
+                    } else row.cleanLicheng = 0;
+                });
+            } else {
+                baseRows.forEach(row=>{
+                    let dirtyEnd = Math.min(row.pk + Lz, maxPk);
+                    row.dirty = baseRows.filter(r=>r.pk>=row.pk && r.pk<dirtyEnd).reduce((s,r)=>s+r.valZhangzi,0)/24;
+                });
+                baseRows.forEach(row=>{
+                    let chuzhiEnd = Math.min(row.pk + Lc, maxPk);
+                    row.cleanChuzhi = baseRows.filter(r=>r.pk>=row.pk && r.pk<chuzhiEnd).reduce((s,r)=>s+r.valChuzhi,0)/24;
+                });
+                baseRows.forEach(row=>{
+                    row.cleanLicheng = baseRows.filter(r=>r.pk>=row.pk && r.pk<=minPk).reduce((s,r)=>s+r.valLicheng,0)/24;
+                });
+            }
+            baseRows.forEach(row=>{ row.clean = row.cleanChuzhi + row.cleanLicheng; });
+
+            finalTable = baseRows.map(r=>[ r.pk, r.pkEnd, r.normal, r.max, r.valZhangzi, r.valChuzhi, r.valLicheng, r.cleanChuzhi, r.cleanLicheng, r.dirty, r.clean ]);
+            mergeTable = mergeSameData(baseRows);
+
+            // 渲染结果表
+            renderResultTable();
+
+            let thresholds = [Wz,Wc,Wl].filter(x=>!isNaN(x)).sort((a,b)=>a-b);
+            let categories = [], values = [];
+            let pre = 0;
+            thresholds.forEach(b=>{ let cnt = baseRows.filter(r=>r.normal>pre && r.normal<=b).length; categories.push(`${pre.toFixed(1)}~${b.toFixed(1)}`); values.push(cnt); pre=b; });
+            let lastCnt = baseRows.filter(r=>r.normal>pre).length;
+            categories.push(`>${pre.toFixed(1)}`); values.push(lastCnt);
+            waterStatsData = { categories, values, maxNormal: Math.max(...baseRows.map(r=>r.normal)), maxMax: Math.max(...baseRows.map(r=>r.max)), maxDirty: Math.max(...baseRows.map(r=>r.dirty)), maxClean: Math.max(...baseRows.map(r=>r.clean)) };
+            
+            renderMaxStats(baseRows, thresholds);
+            return true;
+        }
+
+        $('#processData').click(()=>{
+            let success = doCalculate();
+            if(success){
+                renderAllCharts();
+                alert(`计算完成！共生成 ${mergeTable.length} 条合并数据`);
+            }
+        });
+
+        $('#export').click(()=>{
+            if(mergeTable.length===0){ alert('请先点击数据处理生成结果'); return; }
+            let headers=["起始桩号","终点桩号","正常涌水(m³/d·m)","最大涌水(m³/d·m)","掌子面涌水","初支涌水","衬砌涌水","初支清水量(m³/h)","衬砌清水量(m³/h)","污水量(m³/h)","总清水量(m³/h)"];
+            let data=[headers];
+            mergeTable.forEach(r=>{ 
+                data.push([
+                    r.pk.toFixed(0), 
+                    r.pkEnd.toFixed(0), 
+                    r.normal.toFixed(2), 
+                    r.max.toFixed(2), 
+                    r.valZhangzi.toFixed(2), 
+                    r.valChuzhi.toFixed(2), 
+                    r.valLicheng.toFixed(2), 
+                    r.cleanChuzhi.toFixed(2), 
+                    r.cleanLicheng.toFixed(2), 
+                    r.dirty.toFixed(2), 
+                    r.clean.toFixed(2)
+                ]); 
+            });
+            let ws=XLSX.utils.aoa_to_sheet(data);
+            let wb=XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb,ws,"突涌水合并结果");
+            XLSX.writeFile(wb,"隧洞突涌水合并结果.xlsx");
+        });
+
+        $('#downloadAttrImg').click(function () {
+            html2canvas(document.querySelector('.attr-dist-card'), { scale:3, backgroundColor:'#fff' }).then(canvas=>{
+                let link = document.createElement('a');
+                link.download = '清水污水分布图.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+
+        $(function(){ loadConfig(); });
+    </script>
+</body>
+</html>
