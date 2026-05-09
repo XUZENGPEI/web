@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Word 无用样式清理工具</title>
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            padding: 40px 20px;
+        }
+        .card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 50px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 30px;
+        }
+        .file-box {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 25px;
+            transition: 0.2s;
+        }
+        .file-box:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        .file-name {
+            margin-top: 10px;
+            color: #4b5563;
+            word-break: break-all;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-select {
+            background: #6b7280;
+            color: white;
+        }
+        .btn-select:hover {
+            background: #4b5563;
+        }
+        .btn-clean {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-clean:hover {
+            background: #2563eb;
+        }
+        .btn-clean:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+        .progress {
+            width: 100%;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #3b82f6;
+            width: 0%;
+            transition: width 0.2s;
+        }
+        .status {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="title">Word 无用样式清理工具</div>
+
+        <label class="file-box" id="dropArea">
+            <div>点击 或 拖拽 .docx 文件到此处</div>
+            <div class="file-name" id="fileName">未选择文件</div>
+        </label>
+
+        <input type="file" id="fileInput" accept=".docx">
+
+        <div class="btn-group">
+            <button class="btn-select" id="selectBtn">选择 Word 文件</button>
+            <button class="btn-clean" id="cleanBtn" disabled>开始清理</button>
+        </div>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="status" id="status">等待文件导入</div>
+    </div>
+
+    <script>
+        let file = null;
+        let fileName = '';
+        const builtInStyles = new Set([
+            'Normal', '正文', 'Heading 1', '标题 1',
+            'Heading 2', '标题 2', 'Heading 3', '标题 3',
+            '副标题', '强调', '要点', '引用', '页眉', '页脚'
+        ]);
+
+        const $ = id => document.getElementById(id);
+        const status = text => $('status').textContent = text;
+        const progress = val => {
+            $('progress').style.display = 'block';
+            $('progressBar').style.width = Math.min(val, 100) + '%';
+        };
+
+        // 选择文件
+        $('selectBtn').onclick = () => $('fileInput').click();
+        $('fileInput').onchange = e => {
+            if (e.target.files?.[0]) {
+                file = e.target.files[0];
+                fileName = file.name;
+                $('fileName').textContent = fileName;
+                $('cleanBtn').disabled = false;
+                status('已选择：' + fileName);
+            }
+        };
+
+        // 拖拽
+        const drop = $('dropArea');
+        drop.ondragover = e => e.preventDefault();
+        drop.ondrop = e => {
+            e.preventDefault();
+            const f = e.dataTransfer.files?.[0];
+            if (f && f.name.endsWith('.docx')) {
+                file = f;
+                fileName = f.name;
+                $('fileName').textContent = fileName;
+                $('cleanBtn').disabled = false;
+                status('已拖拽：' + fileName);
+            }
+        };
+
+        // 核心清理逻辑
+        $('cleanBtn').onclick = async () => {
+            if (!file) return;
+            $('cleanBtn').disabled = true;
+            $('selectBtn').disabled = true;
+            status('解压文件中...');
+            progress(10);
+
+            try {
+                const zip = new JSZip();
+                const buffer = await readFile(file);
+                await zip.loadAsync(buffer);
+                progress(25);
+
+                status('分析文档内容...');
+                const used = await collectUsedStyles(zip);
+                progress(50);
+
+                status('清理无用样式...');
+                const count = await cleanUnusedStyles(zip, used);
+                progress(85);
+
+                status('生成新文件...');
+                const outBlob = await zip.generateAsync({
+                    type: 'blob',
+                    compression: 'DEFLATE'
+                });
+                saveAs(outBlob, '已清理_' + fileName);
+                progress(100);
+
+                status(`✅ 完成！删除了 ${count} 个无用样式`);
+            } catch (err) {
+                console.error(err);
+                status('❌ 失败：' + err.message);
+            } finally {
+                $('cleanBtn').disabled = false;
+                $('selectBtn').disabled = false;
+            }
+        };
+
+        // 读取文件
+        function readFile(file) {
+            return new Promise((res, rej) => {
+                const reader = new FileReader();
+                reader.onload = e => res(e.target.result);
+                reader.onerror = rej;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // 收集使用过的样式
+        async function collectUsedStyles(zip) {
+            const used = new Set();
+            const doc = zip.file('word/document.xml');
+            if (!doc) return used;
+
+            const txt = await doc.async('string');
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(txt, 'application/xml');
+
+            const paras = xml.getElementsByTagName('w:p');
+            for (let p of paras) {
+                const pStyle = p.getElementsByTagName('w:pStyle')[0];
+                if (pStyle) {
+                    const val = pStyle.getAttribute('w:val');
+                    if (val) used.add(val);
+                }
+            }
+            return used;
+        }
+
+        // 清理未使用样式
+        async function cleanUnusedStyles(zip, used) {
+            const stylesFile = zip.file('word/styles.xml');
+            if (!stylesFile) return 0;
+
+            const txt = await stylesFile.async('string');
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(txt, 'application/xml');
+
+            const styleNodes = xml.getElementsByTagName('w:style');
+            let removeCount = 0;
+
+            for (let i = styleNodes.length - 1; i >= 0; i--) {
+                const s = styleNodes[i];
+                const id = s.getAttribute('w:styleId');
+                const type = s.getAttribute('w:type');
+                if (!id || !['paragraph', 'character'].includes(type)) continue;
+                if (builtInStyles.has(id)) continue;
+                if (!used.has(id)) {
+                    s.parentNode.removeChild(s);
+                    removeCount++;
+                }
+            }
+
+            const serializer = new XMLSerializer();
+            const newXml = serializer.serializeToString(xml);
+            zip.file('word/styles.xml', newXml);
+            return removeCount;
+        }
+    </script>
+</body>
+</html>

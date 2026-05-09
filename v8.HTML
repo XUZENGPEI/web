@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>引大济岷工程 TBM 选型分析系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --primary-bg: #eef2ff;
+            --accent: #0891b2;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --purple: #7c3aed;
+            --info: #06b6d4;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-500: #64748b;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,.1);
+            --transition: all .25s ease;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: "Microsoft YaHei","PingFang SC",sans-serif;
+            background: linear-gradient(135deg,#f0f4ff 0%,#e8edf5 50%,#f5f0ff 100%);
+            min-height: 100vh;
+            padding: 18px;
+        }
+        .container-fluid { max-width: 1600px; margin: 0 auto; }
+
+        /* ===== Header ===== */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 20px rgba(30,64,175,.25);
+        }
+        .app-header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .app-header .badge {
+            background: rgba(255,255,255,.18);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ===== Tabs ===== */
+        .nav-tabs-wrapper {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 6px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-tabs-custom {
+            display: flex;
+            border: none;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .nav-tabs-custom .nav-link {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            color: var(--gray-500);
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--primary);
+            background: var(--primary-bg);
+        }
+        .nav-tabs-custom .nav-link.active {
+            background: var(--primary);
+            color: #fff !important;
+            box-shadow: 0 3px 10px rgba(30,64,175,.25);
+        }
+
+        /* ===== Cards ===== */
+        .card-modern {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 22px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(0,0,0,.04);
+            transition: var(--transition);
+        }
+        .card-modern:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .section-title-sm {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        /* ===== Charts ===== */
+        .chart-box {
+            width: 100%;
+            height: 380px;
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+        }
+        .visual-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+            height: 100%;
+            transition: var(--transition);
+        }
+        .visual-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .visual-chart {
+            width: 100%;
+            height: 260px !important;
+        }
+        .visual-card h6 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-700);
+            margin-bottom: 12px;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            font-size: 14px;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        }
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-warning:hover { color: #fff; }
+        .btn-purple { background: var(--purple); color: #fff; }
+        .btn-purple:hover { color: #fff; }
+        .btn-info { background: var(--info); color: #fff; }
+        .btn-info:hover { color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { color: #fff; }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-bg);
+        }
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        /* ===== Form ===== */
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1.5px solid var(--gray-200);
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+        }
+        .form-control-color {
+            width: 40px;
+            height: 38px;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1.5px solid var(--gray-200);
+            cursor: pointer;
+        }
+        .form-control[readonly] {
+            background: var(--gray-50);
+            cursor: not-allowed;
+        }
+        .input-group-custom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .input-group-custom label {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        /* ===== Status Box ===== */
+        .status-box {
+            background: var(--gray-50);
+            padding: 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .status-box .col-4 {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            flex: 0 0 auto;
+            width: auto;
+        }
+
+        /* ===== Tables ===== */
+        .table-wrap {
+            max-height: 600px;
+            overflow: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+        }
+        .table-wrap table {
+            font-size: 13px;
+            margin-bottom: 0;
+        }
+        .table-wrap thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .table-wrap thead th {
+            background: var(--primary) !important;
+            color: #fff !important;
+            padding: 10px 12px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none !important;
+            white-space: nowrap;
+        }
+        .table-wrap tbody td {
+            padding: 8px 12px;
+            border-color: var(--gray-200);
+            vertical-align: middle;
+        }
+        .table-wrap tbody tr:hover td {
+            background: var(--primary-bg);
+        }
+        .table-wrap tbody tr:nth-child(even) td {
+            background: var(--gray-50);
+        }
+        .table-wrap tbody tr:nth-child(even):hover td {
+            background: var(--primary-bg);
+        }
+
+        /* ===== Depth Stats ===== */
+        .depth-stat-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .depth-stat-item {
+            margin-bottom: 16px;
+        }
+        .depth-stat-item:last-child { margin-bottom: 0; }
+        .depth-stat-item .stat-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-500);
+        }
+        .depth-stat-item .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--danger);
+            display: block;
+            margin-top: 4px;
+        }
+
+        .depth-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        .depth-summary-table th {
+            background: var(--primary-light);
+            color: #fff;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        .depth-summary-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+        .depth-summary-table tbody tr:nth-child(even) td {
+            background: var(--gray-50);
+        }
+
+        /* ===== Attr Distribution ===== */
+        .attr-dist-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+            overflow-x: auto;
+        }
+        .attr-row {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .attr-label {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--gray-900);
+            white-space: nowrap;
+            min-width: 80px;
+        }
+        .attr-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 15px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .length-progress {
+            height: 24px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        .length-progress .active {
+            position: absolute;
+            height: 100%;
+            border-radius: 0;
+            top: 0;
+            transition: width .3s ease;
+        }
+
+        /* ===== Download Icon ===== */
+        .download-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .download-icon-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        /* ===== Chart Config ===== */
+        .chart-config-panel {
+            background: var(--gray-50);
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-200);
+        }
+
+        /* ===== Suit Result Cards ===== */
+        .suit-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px 16px 22px;
+            transition: all .35s cubic-bezier(.4,0,.2,1);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+            position: relative;
+            overflow: hidden;
+        }
+        .suit-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            transition: height .3s ease;
+        }
+        .suit-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,.12);
+        }
+        .suit-card:hover::before { height: 6px; }
+        .suit-card .suit-label {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .suit-card .suit-value-wrap {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        .suit-card .suit-value {
+            font-size: 48px;
+            font-weight: 800;
+            opacity: 0;
+            transform: translateY(20px) scale(.8);
+            transition: all .6s cubic-bezier(.34,1.56,.64,1);
+            position: relative;
+            z-index: 1;
+        }
+        .suit-card .suit-value.show {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+        .suit-card .suit-value-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: all .8s ease .3s;
+            z-index: 0;
+        }
+        .suit-card .suit-value.show + .suit-value-ring { opacity: .12; }
+        .suit-card .suit-month {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .suit-card .suit-rank {
+            position: absolute;
+            top: -6px; right: -6px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+            z-index: 2;
+            opacity: 0;
+            transform: scale(0);
+            transition: all .4s cubic-bezier(.34,1.56,.64,1) .5s;
+        }
+        .suit-card .suit-rank.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .text-primary-custom { color: var(--primary); }
+        .text-success-custom { color: var(--success); }
+        .text-warning-custom { color: var(--warning); }
+
+        /* ===== Pre ===== */
+        pre { white-space: pre-wrap; font-size: 14px; line-height: 1.5; display: none; }
+
+        /* ===== Suit Result Wrap ===== */
+        .suit-result-wrap {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 50%, #fefce8 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,.12);
+            box-shadow: 0 4px 24px rgba(30,64,175,.08);
+        }
+        .suit-result-wrap::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -10%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle,rgba(59,130,246,.08) 0%,transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .suit-result-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* ===== Animations ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up {
+            animation: fadeInUp .4s ease forwards;
+        }
+        .fade-in-up-delay-1 { animation-delay: .1s; }
+        .fade-in-up-delay-2 { animation-delay: .2s; }
+        .fade-in-up-delay-3 { animation-delay: .3s; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 992px) {
+            .app-header h1 { font-size: 18px; }
+            .app-header .badge { font-size: 12px; padding: 4px 12px; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .app-header { padding: 14px 18px; flex-direction: column; gap: 8px; text-align: center; }
+            .app-header h1 { font-size: 16px; }
+            .card-modern { padding: 14px; }
+            .nav-tabs-custom .nav-link { padding: 8px 14px; font-size: 13px; }
+            .chart-box { height: 320px; }
+            .visual-chart { height: 240px !important; }
+            .depth-stat-item .stat-value { font-size: 26px; }
+            .status-box .col-4 { font-size: 12px; padding: 4px 10px; }
+        }
+        @media (max-width: 576px) {
+            .nav-tabs-custom .nav-link { padding: 6px 10px; font-size: 12px; }
+            .suit-card .suit-value { font-size: 32px; }
+        }
+
+        /* ===== Utility ===== */
+        .text-muted-custom { color: var(--gray-500); font-size: 14px; }
+        .d-none { display: none; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="app-header">
+        <h1><i class="bi bi-geo-alt-fill me-2"></i>引大济岷工程 · TBM 选型分析系统</h1>
+        <span class="badge"><i class="bi bi-info-circle me-1"></i>隧道工程智能分析平台</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="nav-tabs-wrapper">
+        <ul class="nav nav-tabs-custom" id="mainTab">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#import"><i class="bi bi-upload me-1"></i>数据导入</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#plot"><i class="bi bi-graph-up me-1"></i>断面可视化</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#visual"><i class="bi bi-pie-chart me-1"></i>分段可视化</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#result"><i class="bi bi-table me-1"></i>地质统计表</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tbm"><i class="bi bi-bar-chart me-1"></i>TBM适宜性参数</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tbm-2"><i class="bi bi-cpu me-1"></i>TBM选型分析</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#water"><i class="bi bi-droplet me-1"></i>突涌水分析</a></li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        <!-- ===== 数据导入 ===== -->
+        <div class="tab-pane fade show active" id="import">
+            <div class="card-modern">
+                <div class="section-title">数据导入</div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <button id="upload" class="btn btn-primary"><i class="bi bi-file-earmark-excel me-1"></i>选择 Excel 文件导入</button>
+                    <span id="importTip" class="text-muted-custom"><i class="bi bi-inbox me-1"></i>未导入</span>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-md-12">
+                        <div class="section-title">隧洞范围设置</div>
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto input-group-custom">
+                                <label>选择隧洞：</label>
+                                <select id="tunnelSelect" class="form-select" style="width:200px"><option value="">请先导入数据</option></select>
+                            </div>
+                            <div class="col-auto input-group-custom">
+                                <label>起始桩号：</label>
+                                <input id="tunnelStart" class="form-control" style="width:110px" readonly>
+                            </div>
+                            <div class="col-auto input-group-custom">
+                                <label>终点桩号：</label>
+                                <input id="tunnelEnd" class="form-control" style="width:110px" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="section-title">埋深分段设置</div>
+                        <div class="row g-3">
+                            <div class="col-auto input-group-custom">
+                                <label>埋深1:</label>
+                                <input id="b1" class="form-control" style="width:90px" value="500">
+                            </div>
+                            <div class="col-auto input-group-custom">
+                                <label>埋深2:</label>
+                                <input id="b2" class="form-control" style="width:90px" value="1000">
+                            </div>
+                            <div class="col-auto input-group-custom">
+                                <label>埋深3:</label>
+                                <input id="b3" class="form-control" style="width:90px" value="1500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title mt-3">数据加载状态</div>
+                <div id="status" class="status-box"></div>
+
+                <div class="mt-3">
+                    <button id="processData" class="btn btn-success btn-lg w-100"><i class="bi bi-play-circle me-1"></i>数据处理</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 断面可视化 ===== -->
+        <div class="tab-pane fade" id="plot">
+            <div id="captureArea">
+                <div class="chart-box mb-3" id="profileChart"></div>
+                <div class="attr-dist-card mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="section-title mb-0">隧洞沿线地质条件分布</div>
+                        <button id="downloadAttrImg" class="download-icon-btn" title="下载属性分布图"><i class="bi bi-download"></i></button>
+                    </div>
+                    <div class="attr-wrapper"><div id="attrDistribution"></div></div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="chart-box" id="depthChartContainer" style="height:320px;"></div>
+                    <table class="depth-summary-table" id="depthSummaryTable">
+                        <thead><tr><th>埋深区间</th><th>长度(m)</th><th>占比(%)</th></tr></thead>
+                        <tbody id="depthTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="col-lg-4">
+                    <div class="depth-stat-card">
+                        <div class="depth-stat-item">
+                            <span class="stat-label">最大埋深</span>
+                            <span class="stat-value" id="maxDepth">-</span>
+                        </div>
+                        <div class="depth-stat-item">
+                            <span class="stat-label">平均埋深</span>
+                            <span class="stat-value" id="avgDepth">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <pre id="stats"></pre>
+        </div>
+
+        <!-- ===== 分段可视化 ===== -->
+        <div class="tab-pane fade" id="visual">
+            <div class="card-modern">
+                <div class="section-title">地质条件占比分析</div>
+                <div class="chart-config-panel">
+                    <div class="section-title-sm">图表样式设置</div>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-3 input-group-custom">
+                            <label>标注位置：</label>
+                            <select id="labelPosition" class="form-select" style="width:110px;">
+                                <option value="inner">内部</option>
+                                <option value="outside">引出</option>
+                                <option value="top">顶部</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 input-group-custom">
+                            <label>文字大小：</label>
+                            <select id="labelFontSize" class="form-select" style="width:90px;">
+                                <option value="10">10</option>
+                                <option value="12">12</option>
+                                <option value="15" selected>15</option>
+                                <option value="18">18</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 input-group-custom">
+                            <label>文字颜色：</label>
+                            <input type="color" id="labelColor" class="form-control-color" value="#000000">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button id="exportAllCharts" class="btn btn-danger"><i class="bi bi-images me-1"></i>批量导出</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 input-group-custom">
+                    <label class="fw-bold">施工分段：</label>
+                    <select id="constructionSelect" class="form-select w-auto d-inline-block ms-2" style="min-width:160px;"></select>
+                </div>
+                <div id="lengthInfo" class="mb-3" style="display:none;">
+                    <div class="fw-bold mb-1" id="lengthText"></div>
+                    <div class="length-progress" id="progressContainer"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">围岩类别占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieRock','围岩类别占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieRock" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableRock"></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">突涌水风险占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieWater','突涌水风险占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieWater" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableWater"></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">岩爆类别占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieRockburst','岩爆类别占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieRockburst" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableRockburst"></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">软岩变形占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieSoft','软岩变形占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieSoft" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableSoft"></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">有害气体占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieGas','有害气体占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieGas" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableGas"></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">中高地温占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieTemp','中高地温占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieTemp" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableTemp"></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="visual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">自定义项占比</h6>
+                                <button class="btn btn-sm btn-outline" onclick="exportChart('pieOther','自定义项占比')"><i class="bi bi-download"></i></button>
+                            </div>
+                            <div id="pieOther" class="visual-chart"></div>
+                            <div class="mt-2"><table class="chart-data-table table mb-0" id="tableOther"></table></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 地质统计表 ===== -->
+        <div class="tab-pane fade" id="result">
+            <div class="card-modern">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button id="export" class="btn btn-purple"><i class="bi bi-file-earmark-excel me-1"></i>导出保存为 Excel</button>
+                    <span id="rowCount" class="text-muted-custom"></span>
+                </div>
+                <div class="table-wrap">
+                    <table id="resultTable" class="table table-bordered table-hover"></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TBM适宜性参数 ===== -->
+        <div class="tab-pane fade" id="tbm">
+            <div class="card-modern">
+                <div class="section-title">TBM 选型分析</div>
+                <div class="d-flex gap-3 mb-3 flex-wrap">
+                    <input type="file" id="tbmFileInput" accept=".xlsx,.xls" style="display:none;">
+                    <button id="uploadTbm" class="btn btn-primary"><i class="bi bi-upload me-1"></i>适宜性曲线导入</button>
+                    <button id="drawTbmCharts" class="btn btn-success d-none">适宜性指数</button>
+                    <!-- 适宜性分析已合并到 TBM适宜性计算 按钮中自动执行 -->
+                    <button id="exportTbmCharts" class="btn btn-info"><i class="bi bi-images me-1"></i>一键下载图表</button>
+                    <span id="tbmImportTip" class="text-muted-custom align-self-center"><i class="bi bi-inbox me-1"></i>未导入 TBM 数据</span>
+                </div>
+                <div class="row g-3 mb-4" id="tbmChartsContainer">
+                    <div class="col-md-4"><div class="visual-card"><h6>岩体质量适宜性曲线</h6><div id="tbmChart1" class="visual-chart"></div></div></div>
+                    <div class="col-md-4"><div class="visual-card"><h6>完整程度适宜性曲线</h6><div id="tbmChart2" class="visual-chart"></div></div></div>
+                    <div class="col-md-4"><div class="visual-card"><h6>磨蚀性适宜性曲线</h6><div id="tbmChart3" class="visual-chart"></div></div></div>
+                    <div class="col-md-4"><div class="visual-card"><h6>岩爆适宜性曲线</h6><div id="tbmChart4" class="visual-chart"></div></div></div>
+                    <div class="col-md-4"><div class="visual-card"><h6>软岩变形适宜性曲线</h6><div id="tbmChart5" class="visual-chart"></div></div></div>
+                    <div class="col-md-4"><div class="visual-card"><h6>突涌水适宜性曲线</h6><div id="tbmChart6" class="visual-chart"></div></div></div>
+                </div>
+                <div class="section-title mt-4">TBM 适宜性计算结果</div>
+                <div class="table-wrap">
+                    <table id="tbmResultTable" class="table table-bordered table-hover"></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TBM选型分析 ===== -->
+        <div class="tab-pane fade" id="tbm-2">
+            <div class="card-modern">
+                <div class="section-title">TBM 选型分析</div>
+                <div class="d-flex gap-3 mb-3 flex-wrap">
+                    <input type="file" id="tbmTypeFileInput" accept=".xlsx,.xls" style="display:none;">
+                    <button id="uploadTbmType" class="btn btn-primary"><i class="bi bi-upload me-1"></i>进度数据导入</button>
+                    <button id="calcSubCoeff" class="btn btn-info"><i class="bi bi-calculator me-1"></i>TBM适宜性计算</button>
+                    <button id="exportTbmExcelBtn" class="btn btn-success"><i class="bi bi-file-earmark-excel me-1"></i>导出 Excel</button>
+                    <span id="tbmTypeImportTip" class="text-muted-custom align-self-center"><i class="bi bi-inbox me-1"></i>未导入 TBM 选型数据</span>
+                </div>
+
+                <!-- 适宜性结果卡片 -->
+                <div class="row mt-3" id="suitResultCardWrap" style="display:none;">
+                    <div class="col-md-12">
+                        <div class="suit-result-wrap">
+                            <div class="section-title mb-3 justify-content-center" style="font-size:18px;border:none;padding:0;">
+                                <i class="bi bi-trophy-fill text-warning"></i>TBM 综合适宜性结果
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="suit-card text-center" style="border-top:4px solid var(--primary)">
+                                        <div class="suit-label text-primary-custom">敞开式 TBM</div>
+                                        <div class="suit-value-wrap">
+                                            <div class="suit-value text-primary-custom" id="suitOpen">--</div>
+                                            <div class="suit-value-ring" style="background:var(--primary)"></div>
+                                        </div>
+                                        <div class="suit-month text-primary-custom" id="totalOpenMonth">-- 月</div>
+                                        <div class="suit-rank" id="rankOpen" style="background:var(--primary)">1</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="suit-card text-center" style="border-top:4px solid var(--success)">
+                                        <div class="suit-label text-success-custom">双护盾 TBM</div>
+                                        <div class="suit-value-wrap">
+                                            <div class="suit-value text-success-custom" id="suitDouble">--</div>
+                                            <div class="suit-value-ring" style="background:var(--success)"></div>
+                                        </div>
+                                        <div class="suit-month text-success-custom" id="totalDoubleMonth">-- 月</div>
+                                        <div class="suit-rank" id="rankDouble" style="background:var(--success)">2</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="suit-card text-center" style="border-top:4px solid var(--warning)">
+                                        <div class="suit-label text-warning-custom">单护盾 TBM</div>
+                                        <div class="suit-value-wrap">
+                                            <div class="suit-value text-warning-custom" id="suitSingle">--</div>
+                                            <div class="suit-value-ring" style="background:var(--warning)"></div>
+                                        </div>
+                                        <div class="suit-month text-warning-custom" id="totalSingleMonth">-- 月</div>
+                                        <div class="suit-rank" id="rankSingle" style="background:var(--warning)">3</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title mt-3">进度数据</div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6"><div class="visual-card"><h6>常规洞段进度</h6><div id="tbmProgressNormal" class="visual-chart" style="height:300px"></div></div></div>
+                    <div class="col-md-6"><div class="visual-card"><h6>折减洞段进度</h6><div id="tbmProgressDiscount" class="visual-chart" style="height:300px"></div></div></div>
+                </div>
+                <div class="table-wrap mb-3">
+                    <table id="tbmTypeDataTable" class="table table-bordered table-hover"></table>
+                </div>
+
+                <div class="section-title mt-3">分项系数（秩）</div>
+                <div class="table-wrap mb-3">
+                    <table id="subCoeffTable" class="table table-bordered table-hover"></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 突涌水分析 ===== -->
+        <div class="tab-pane fade" id="water">
+            <div class="card-modern">
+                <div class="section-title">计算参数设置</div>
+                <div class="row g-3 mb-3 align-items-center">
+                    <div class="col-auto input-group-custom">
+                        <label>起始桩号：</label>
+                        <input id="waterStartPk" class="form-control" style="width:120px">
+                    </div>
+                    <div class="col-auto input-group-custom">
+                        <label>终点桩号：</label>
+                        <input id="waterEndPk" class="form-control" style="width:120px">
+                    </div>
+                </div>
+                <div class="row g-3 mb-3 align-items-center">
+                    <div class="col-auto input-group-custom">
+                        <label>掌子面长度：</label>
+                        <input id="zhangzi" class="form-control" style="width:100px" value="50">
+                    </div>
+                    <div class="col-auto input-group-custom">
+                        <label>初支长度：</label>
+                        <input id="chuzhi" class="form-control" style="width:100px" value="100">
+                    </div>
+                </div>
+                <div class="row g-3 mb-3 align-items-center">
+                    <div class="col-auto input-group-custom">
+                        <label>掌子面阈值：</label>
+                        <input id="w1" class="form-control" style="width:100px" value="10">
+                    </div>
+                    <div class="col-auto input-group-custom">
+                        <label>初支阈值：</label>
+                        <input id="w2" class="form-control" style="width:100px" value="20">
+                    </div>
+                    <div class="col-auto input-group-custom">
+                        <label>衬砌阈值：</label>
+                        <input id="w3" class="form-control" style="width:100px" value="30">
+                    </div>
+                </div>
+                <button id="waterProcess" class="btn btn-success w-100"><i class="bi bi-play-circle me-1"></i>涌水计算分析</button>
+            </div>
+
+            <div class="card-modern">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="section-title mb-0">沿程涌水量</div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline" onclick="exportWaterChart('waterFlowChart','隧洞涌水量断面图')"><i class="bi bi-download"></i></button>
+                        <button class="btn btn-sm btn-outline" onclick="exportWaterChart('waterTypeChart','清水量污水量分布图')"><i class="bi bi-download"></i></button>
+                    </div>
+                </div>
+                <div class="chart-box mb-3" id="waterFlowChart"></div>
+                <div class="chart-box mb-3" id="waterTypeChart" style="height:320px"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="card-modern">
+                        <div class="section-title-sm">正常涌水分布</div>
+                        <div id="normalWaterChart" style="height:280px;width:100%;"></div>
+                        <table class="depth-summary-table" id="normalWaterTable">
+                            <thead><tr><th>涌水区间(m³/d·m)</th><th>长度(m)</th><th>占比(%)</th></tr></thead>
+                            <tbody id="normalWaterBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-modern">
+                        <div class="section-title-sm">最大涌水分布</div>
+                        <div id="maxWaterChart" style="height:280px;width:100%;"></div>
+                        <table class="depth-summary-table" id="maxWaterTable">
+                            <thead><tr><th>涌水区间(m³/d·m)</th><th>长度(m)</th><th>占比(%)</th></tr></thead>
+                            <tbody id="maxWaterBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <div class="depth-stat-card">
+                        <span>最大正常涌水(m³/d·m)</span>
+                        <span class="stat-value" id="maxNormalVal" style="font-size:28px;">-</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="depth-stat-card">
+                        <span>最大最大涌水(m³/d·m)</span>
+                        <span class="stat-value" id="maxMaxVal" style="font-size:28px;">-</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="depth-stat-card">
+                        <span>最大污水量(m³/h)</span>
+                        <span class="stat-value" id="maxDirtyVal" style="font-size:28px;">-</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="depth-stat-card">
+                        <span>最大清水量(m³/h)</span>
+                        <span class="stat-value" id="maxCleanVal" style="font-size:28px;">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-modern">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button id="exportWater" class="btn btn-purple"><i class="bi bi-file-earmark-excel me-1"></i>导出 Excel</button>
+                    <span id="waterRowCount" class="text-muted-custom"></span>
+                </div>
+                <div class="table-wrap">
+                    <table id="waterResultTable" class="table table-bordered table-hover">
+                        <thead><tr><th>起始桩号</th><th>终点桩号</th><th>正常涌水(m³/d·m)</th><th>最大涌水(m³/d·m)</th><th>掌子面涌水</th><th>初支涌水</th><th>衬砌涌水</th><th>初支清水量(m³/h)</th><th>衬砌清水量(m³/h)</th><th>污水量(m³/h)</th><th>总清水量(m³/h)</th></tr></thead>
+                        <tbody id="waterResultBody"><tr><td colspan="11" style="text-align:center">暂无数据，请先点击"涌水计算分析"</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===================================================================
+//  全局变量
+// ===================================================================
+let wbData = {};
+let finalTable = [];
+let allConstructionTypes = [];
+let totalTunnelLength = 0;
+let tunnelList = [];
+let tbmData = {};
+const tbmSheetNames = ["岩体质量","完整程度","磨蚀性","岩爆","强度应力比","THR"];
+let tbmTypeData = [];
+let subCoeffResult = [];
+
+const chartInstances = {};
+
+const sortRules = {
+    围岩类别: ["II类","III类","IV类","V类","断层"],
+    突涌水: ["I","II","III","IV","V","无"],
+    岩爆: ["强","中","微","无","极强"],
+    软岩变形: ["5级极强","4级强","3级中等","2级轻微","1级微","无"],
+    有害气体: ["高瓦斯","低瓦斯","微瓦斯","无"],
+    高地温: ["热害中等","热害轻微","无","高地温"],
+    其他: []
+};
+const colorMap = {
+    "II类":"#5470c6","III类":"#91cc75","IV类":"#fac858","V类":"#ee6666","断层":"#d51111",
+    "I":"#5470c6","II":"#91cc75","III":"#fac858","IV":"#ee6666","V":"#d51111",
+    "无":"#91cc75","微":"#5470c6","中":"#fac858","强":"#ee6666","极强":"#d51111",
+    "轻微热害":"#91cc75","热害轻微":"#91cc75","热害中等":"#fac858","高地温":"#ee6666",
+    "1级微":"#5470c6","2级轻微":"#91cc75","3级中等":"#fac858","4级强":"#ee6666","5级极强":"#d51111"
+};
+
+// ===================================================================
+//  ECharts 初始化
+// ===================================================================
+function initCharts() {
+    const ids = ['profileChart','depthChartContainer',
+        'pieRock','pieWater','pieRockburst','pieSoft','pieGas','pieTemp','pieOther',
+        'tbmChart1','tbmChart2','tbmChart3','tbmChart4','tbmChart5','tbmChart6',
+        'waterFlowChart','waterTypeChart','normalWaterChart','maxWaterChart',
+        'tbmProgressNormal','tbmProgressDiscount'];
+    ids.forEach(id => { chartInstances[id] = echarts.init(document.getElementById(id)); });
+}
+initCharts();
+
+// 快捷引用
+const $ = jQuery;
+const EC = id => chartInstances[id];
+
+// ===================================================================
+//  Resize
+// ===================================================================
+window.addEventListener('resize', () => {
+    Object.values(chartInstances).forEach(c => c.resize());
+});
+
+// ===================================================================
+//  Tab 切换
+// ===================================================================
+document.querySelector('a[href="#plot"]').addEventListener('shown.bs.tab', () => {
+    EC('profileChart').resize();
+    EC('depthChartContainer').resize();
+});
+document.querySelector('a[href="#visual"]').addEventListener('shown.bs.tab', () => {
+    EC('pieRock').resize();
+    EC('pieWater').resize();
+    EC('pieRockburst').resize();
+    EC('pieSoft').resize();
+    EC('pieGas').resize();
+    EC('pieTemp').resize();
+    EC('pieOther').resize();
+    refreshAllCharts();
+});
+document.querySelector('a[href="#tbm-2"]').addEventListener('shown.bs.tab', () => {
+    EC('tbmProgressNormal').resize();
+    EC('tbmProgressDiscount').resize();
+});
+document.querySelector('a[href="#water"]').addEventListener('shown.bs.tab', () => {
+    EC('waterFlowChart').resize();
+    EC('waterTypeChart').resize();
+    EC('normalWaterChart').resize();
+    EC('maxWaterChart').resize();
+});
+
+// ===================================================================
+//  配置存储
+// ===================================================================
+function loadConfig() {
+    const cfg = JSON.parse(localStorage.getItem('tunnelCfg') || '{"b1":"500","b2":"1000","b3":"1500"}');
+    $('#b1').val(cfg.b1); $('#b2').val(cfg.b2); $('#b3').val(cfg.b3);
+}
+function saveConfig() {
+    localStorage.setItem('tunnelCfg', JSON.stringify({
+        b1: $('#b1').val(), b2: $('#b2').val(), b3: $('#b3').val()
+    }));
+}
+
+// ===================================================================
+//  工具函数
+// ===================================================================
+function getValue(sheet, s, e) {
+    if (!sheet) return '';
+    for (const r of sheet) {
+        const start = parseFloat(r[0]), end = parseFloat(r[1]);
+        if (start <= s && end >= e) return r[2] ? r[2].toString().trim() : '';
+    }
+    return '';
+}
+function getValueMulti(sheet, s, e, colIdx) {
+    if (!sheet) return '';
+    for (const r of sheet) {
+        const start = parseFloat(r[0]), end = parseFloat(r[1]);
+        if (start <= s && end >= e) return r[colIdx] ? r[colIdx].toString().trim() : '';
+    }
+    return '';
+}
+function getWaterValue(s, e, isMax) {
+    if (!wbData["涌水量"]) return "0.00";
+    for (const r of wbData["涌水量"]) {
+        if (r.length < 4) continue;
+        const rs = parseFloat(r[0]), re = parseFloat(r[1]);
+        if (rs <= s && re >= e) {
+            return isMax ? (parseFloat(r[3]).toFixed(2) || "0.00") : (parseFloat(r[2]).toFixed(2) || "0.00");
+        }
+    }
+    return "0.00";
+}
+function getMainRockType(text) {
+    if (!text) return "未知";
+    text = text.trim();
+    const types = ["II类","III类","IV类","V类","断层"];
+    let maxPercent = -1, mainType = "未知";
+    types.forEach(t => {
+        const reg = new RegExp(t + '.*?(\\d+)%?', 'i');
+        const m = text.match(reg);
+        if (m) { const p = parseInt(m[1]); if (p > maxPercent) { maxPercent = p; mainType = t; } }
+    });
+    return types.includes(text) ? text : mainType;
+}
+function parseRock(txt, len) {
+    let ii = 0, iii = 0, iv = 0, v = 0, fault = 0;
+    if (!txt) return [ii, iii, iv, v, fault];
+    txt = txt.trim();
+    if (txt === 'II类') ii = len;
+    else if (txt === 'III类') iii = len;
+    else if (txt === 'IV类') iv = len;
+    else if (txt === 'V类') v = len;
+    else if (txt === '断层') fault = len;
+    else {
+        txt.split(/[,，]/).forEach(it => {
+            it = it.trim();
+            const m = it.match(/(\d+)%?/);
+            if (!m) return;
+            const p = parseFloat(m[1]) / 100;
+            if (it.startsWith('II类')) ii = len * p;
+            if (it.startsWith('III类')) iii = len * p;
+            if (it.startsWith('IV类')) iv = len * p;
+            if (it.startsWith('V类')) v = len * p;
+            if (it.startsWith('断层')) fault = len * p;
+        });
+    }
+    return [Math.round(ii * 100) / 100, Math.round(iii * 100) / 100, Math.round(iv * 100) / 100, Math.round(v * 100) / 100, Math.round(fault * 100) / 100];
+}
+function getDepthRegion(d, breaks) {
+    breaks = breaks.filter(x => !isNaN(x)).sort((a, b) => a - b);
+    if (!breaks.length) return '未分区';
+    for (let i = 0; i < breaks.length; i++) {
+        if (i === 0 && d <= breaks[i]) return `0-${breaks[i]}m`;
+        if (i > 0 && d > breaks[i - 1] && d <= breaks[i]) return `${breaks[i - 1]}-${breaks[i]}m`;
+    }
+    return `>${breaks[breaks.length - 1]}m`;
+}
+function isEmptyValue(name) {
+    return ["","无","未知","无数据","-"," ","null","undefined"].includes(typeof name === 'string' ? name.trim() : name);
+}
+function filterZero(map) {
+    const res = {};
+    for (const k in map) { if (map[k] > 0.01) res[k] = map[k]; }
+    return res;
+}
+function interpolateSuit(sheet, val) {
+    if (!sheet || isNaN(val)) return { open: 1, double: 1, single: 1 };
+    const data = [];
+    for (let i = 1; i < sheet.length; i++) {
+        const row = sheet[i];
+        if (row.length < 4) continue;
+        const x = parseFloat(row[0]);
+        if (isNaN(x)) continue;
+        data.push({ x, open: parseFloat(row[1]) || 0, double: parseFloat(row[2]) || 0, single: parseFloat(row[3]) || 0 });
+    }
+    data.sort((a, b) => a.x - b.x);
+    if (!data.length) return { open: 1, double: 1, single: 1 };
+    if (val <= data[0].x) return data[0];
+    if (val >= data[data.length - 1].x) return data[data.length - 1];
+    for (let i = 0; i < data.length - 1; i++) {
+        const x0 = data[i].x, x1 = data[i + 1].x;
+        if (val >= x0 && val <= x1) {
+            const k = (val - x0) / (x1 - x0);
+            return {
+                open: data[i].open + k * (data[i + 1].open - data[i].open),
+                double: data[i].double + k * (data[i + 1].double - data[i].double),
+                single: data[i].single + k * (data[i + 1].single - data[i].single)
+            };
+        }
+    }
+    return { open: 1, double: 1, single: 1 };
+}
+function matchSuit(sheet, text) {
+    if (!sheet || !text) return { open: 1, double: 1, single: 1 };
+    text = text.trim();
+    for (let i = 1; i < sheet.length; i++) {
+        const row = sheet[i];
+        if (!row || row.length < 3) continue;
+        if ((row[0] + '').trim() === text) {
+            return { open: parseFloat(row[1]) || 0, double: parseFloat(row[2]) || 0, single: parseFloat(row[3]) || 0 };
+        }
+    }
+    return { open: 0, double: 0, single: 0 };
+}
+
+// ===================================================================
+//  隧洞列表
+// ===================================================================
+function loadTunnelList() {
+    if (!wbData["隧洞桩号"]) {
+        tunnelList = [];
+        $('#tunnelSelect').html('<option value="">无隧洞数据</option>');
+        return;
+    }
+    tunnelList = wbData["隧洞桩号"].filter(r => r.length >= 3 && r[0] && !isNaN(parseFloat(r[1])) && !isNaN(parseFloat(r[2])));
+    const sel = $('#tunnelSelect').empty().append('<option value="">请选择隧洞</option>');
+    tunnelList.forEach(item => sel.append(`<option value="${item[0].toString().trim()}">${item[0].toString().trim()}</option>`));
+}
+
+$('#tunnelSelect').change(function() {
+    const name = $(this).val();
+    if (!name) {
+        $('#tunnelStart').val('').prop('readonly', false);
+        $('#tunnelEnd').val('').prop('readonly', false);
+        return;
+    }
+    const tunnel = tunnelList.find(item => item[0].toString().trim() === name);
+    if (tunnel) {
+        $('#tunnelStart').val(parseFloat(tunnel[1])).prop('readonly', false);
+        $('#tunnelEnd').val(parseFloat(tunnel[2])).prop('readonly', false);
+    }
+});
+
+function getTunnelFloorElevation(x) {
+    if (!wbData["底板高程"]) return 0;
+    const data = wbData["底板高程"].filter(r => r.length >= 2 && !isNaN(parseFloat(r[0])) && !isNaN(parseFloat(r[1])));
+    const xs = data.map(r => parseFloat(r[0]));
+    const ys = data.map(r => parseFloat(r[1]));
+    for (let i = 1; i < xs.length; i++) {
+        if (x >= xs[i - 1] && x <= xs[i]) {
+            const k = (x - xs[i - 1]) / (xs[i] - xs[i - 1]);
+            return ys[i - 1] + k * (ys[i] - ys[i - 1]);
+        }
+    }
+    return ys[0] || 0;
+}
+
+// ===================================================================
+//  文件导入
+// ===================================================================
+$('#upload').click(() => $('#fileInput').click());
+$('#fileInput').change(function(e) {
+    if (!e.target.files || !e.target.files.length) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            const wb = XLSX.read(ev.target.result, { type: 'binary' });
+            const sheets = ["底板高程","隧洞桩号","断面数据","施工分段","围岩分类","突涌水","岩爆","软岩变形","有害气体","高地温","其他","涌水量"];
+            let statusHtml = '';
+            sheets.forEach(s => {
+                if (wb.SheetNames.includes(s)) {
+                    wbData[s] = XLSX.utils.sheet_to_json(wb.Sheets[s], { header: 1 });
+                    statusHtml += `<span class="col-4">${s}：<span class="text-success">✅ 已加载</span></span>`;
+                } else {
+                    wbData[s] = null;
+                    statusHtml += `<span class="col-4">${s}：<span class="text-danger">❌ 无此表</span></span>`;
+                }
+            });
+            $('#status').html(statusHtml);
+            $('#importTip').html('<i class="bi bi-check-circle text-success me-1"></i>导入完成');
+            loadTunnelList();
+        } catch (err) {
+            alert('读取失败：' + err.message);
+        }
+    };
+    reader.readAsBinaryString(e.target.files[0]);
+});
+
+// ===================================================================
+//  数据处理
+// ===================================================================
+function doGenerateTableFirst() {
+    saveConfig();
+    if (!wbData["断面数据"] || !wbData["围岩分类"] || !wbData["底板高程"]) {
+        alert('请先导入完整数据');
+        return false;
+    }
+    const startX = parseFloat($('#tunnelStart').val());
+    const endX = parseFloat($('#tunnelEnd').val());
+    if (isNaN(startX) || isNaN(endX) || startX >= endX) {
+        alert('请设置正确的桩号范围');
+        return false;
+    }
+    try {
+        const breaks = [parseFloat($('#b1').val()), parseFloat($('#b2').val()), parseFloat($('#b3').val())];
+        const sec = wbData["断面数据"].filter(r => r.length >= 2 && !isNaN(parseFloat(r[0])));
+        const xa = sec.map(r => parseFloat(r[0]));
+        const ya = sec.map(r => parseFloat(r[1]));
+        const rows = [];
+        for (let s = startX; s < endX; s++) {
+            const e = s + 1;
+            const con = getValue(wbData["施工分段"], s, e);
+            const rtxt = getValueMulti(wbData["围岩分类"], s, e, 2);
+            const [ii, iii, iv, v, f] = parseRock(rtxt, 1);
+            const ir = getValueMulti(wbData["突涌水"], s, e, 2);
+            const thr = getValueMulti(wbData["突涌水"], s, e, 3);
+            const rb = getValue(wbData["岩爆"], s, e);
+            const sf = getValueMulti(wbData["软岩变形"], s, e, 2);
+            const strengthStress = getValueMulti(wbData["软岩变形"], s, e, 3);
+            const gs = getValue(wbData["有害气体"], s, e);
+            const ht = getValue(wbData["高地温"], s, e);
+            const ot = getValue(wbData["其他"], s, e);
+            const avgWater = getWaterValue(s, e, false);
+            const maxWater = getWaterValue(s, e, true);
+            let sy = 0;
+            for (let i = 1; i < xa.length; i++) {
+                if (xa[i - 1] <= s && xa[i] >= s) {
+                    const w = (s - xa[i - 1]) / (xa[i] - xa[i - 1]);
+                    sy = ya[i - 1] * (1 - w) + ya[i] * w;
+                    break;
+                }
+            }
+            const tn = getTunnelFloorElevation(s);
+            const dp = sy - tn;
+            const rg = getDepthRegion(dp, breaks);
+            rows.push([s,e,con,rtxt,ii,iii,iv,v,f,
+                getValueMulti(wbData["围岩分类"],s,e,3), // 岩性
+                getValueMulti(wbData["围岩分类"],s,e,4), // 岩体质量
+                getValueMulti(wbData["围岩分类"],s,e,5), // 岩体强度
+                getValueMulti(wbData["围岩分类"],s,e,6), // 完整程度
+                getValueMulti(wbData["围岩分类"],s,e,7), // 磨蚀性
+                ir,thr,rb,sf,strengthStress,gs,ht,ot,avgWater,maxWater,rg]);
+        }
+
+        const keys = [2,3,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+        const groups = [];
+        let g = 0;
+        groups.push(g);
+        for (let i = 1; i < rows.length; i++) {
+            let same = true;
+            for (const k of keys) { if (rows[i][k] !== rows[i - 1][k]) { same = false; break; } }
+            if (!same) g++;
+            groups.push(g);
+        }
+        const groupMap = {};
+        rows.forEach((r, i) => {
+            const gId = groups[i];
+            if (!groupMap[gId]) groupMap[gId] = [];
+            groupMap[gId].push(r);
+        });
+        const result = [];
+        Object.values(groupMap).forEach(grp => {
+            const sMin = Math.min(...grp.map(r => r[0]));
+            const eMax = Math.max(...grp.map(r => r[1]));
+            const first = grp[0];
+            const sumII = grp.reduce((a, b) => a + b[4], 0);
+            const sumIII = grp.reduce((a, b) => a + b[5], 0);
+            const sumIV = grp.reduce((a, b) => a + b[6], 0);
+            const sumV = grp.reduce((a, b) => a + b[7], 0);
+            const sumF = grp.reduce((a, b) => a + b[8], 0);
+            result.push([
+                sMin, eMax, first[2], first[3],
+                Math.round(sumII * 100) / 100, Math.round(sumIII * 100) / 100,
+                Math.round(sumIV * 100) / 100, Math.round(sumV * 100) / 100, Math.round(sumF * 100) / 100,
+                first[9], first[10], first[11], first[12], first[13],
+                first[14], first[15], first[16], first[17], first[18],
+                first[19], first[20], first[21], first[22], first[23], first[24]
+            ]);
+        });
+        finalTable = result;
+        totalTunnelLength = result.reduce((sum, row) => sum + (row[1] - row[0]), 0);
+        const headers = ["起始桩号","终点桩号","施工分段","围岩分类","II类长度","III类长度","IV类长度","V类长度","断层长度",
+            "岩性","岩体质量","岩体强度","完整程度","磨蚀性","突涌水","THR","岩爆","软岩变形","强度应力比","有害气体","高地温","其他","平均涌水","最大涌水","埋深区间"];
+        let html = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+        result.forEach(r => { html += '<tr>' + r.map(c => `<td>${c === '' ? '-' : c}</td>`).join('') + '</tr>'; });
+        html += '</tbody>';
+        $('#resultTable').html(html);
+        $('#rowCount').text(`共 ${result.length} 段`);
+        loadConstructionOptions();
+        refreshAllCharts();
+        return true;
+    } catch (err) {
+        alert('生成失败：' + err.message);
+        return false;
+    }
+}
+
+function doCalcDepthFromTable() {
+    try {
+        if (!finalTable.length) return false;
+        const tableStart = finalTable[0][0];
+        const tableEnd = finalTable[finalTable.length - 1][1];
+        const breaks = [parseFloat($('#b1').val()), parseFloat($('#b2').val()), parseFloat($('#b3').val())];
+        const sec = wbData["断面数据"].filter(r => r.length >= 2 && !isNaN(parseFloat(r[0])));
+        const xs = sec.map(r => parseFloat(r[0])).sort((a, b) => a - b);
+        const yt = xs.map(x => { for (const r of sec) { if (parseFloat(r[0]) === x) return parseFloat(r[1]); } return 0; });
+        const ytun = xs.map(x => getTunnelFloorElevation(x));
+        const dep = xs.map((_, i) => yt[i] - ytun[i]);
+        const filtered = [];
+        for (let i = 0; i < xs.length; i++) {
+            if (xs[i] >= tableStart && xs[i] <= tableEnd) {
+                filtered.push({ x: xs[i], y: yt[i], tun: ytun[i], depth: dep[i] });
+            }
+        }
+        if (!filtered.length) return false;
+        const fxs = filtered.map(f => f.x);
+        const fyt = filtered.map(f => f.y);
+        const fytun = filtered.map(f => f.tun);
+        const fdep = filtered.map(f => f.depth);
+        const dx = [], dm = [];
+        for (let i = 1; i < fxs.length; i++) { dx.push(fxs[i] - fxs[i - 1]); dm.push(fdep[i - 1]); }
+        let pre = 0;
+        const categories = [], values = [];
+        breaks.filter(b => !isNaN(b)).sort((a, b) => a - b).forEach(b => {
+            let sum = 0;
+            for (let i = 0; i < dm.length; i++) { if (dm[i] > pre && dm[i] <= b) sum += dx[i]; }
+            categories.push(`${pre}~${b}m`);
+            values.push(sum.toFixed(2));
+            pre = b;
+        });
+        let sumLast = 0;
+        for (let i = 0; i < dm.length; i++) { if (dm[i] > pre) sumLast += dx[i]; }
+        categories.push(`>${pre}m`);
+        values.push(sumLast.toFixed(2));
+        const maxDepth = Math.max(...fdep).toFixed(2);
+        const avgDepth = (fdep.reduce((a, b) => a + b, 0) / fdep.length).toFixed(2);
+
+        $('#maxDepth').text(`${Math.round(maxDepth)}m`);
+        $('#avgDepth').text(`${Math.round(avgDepth)}m`);
+
+        // 渲染埋深图
+        const totalLength = values.reduce((a, b) => a + parseFloat(b), 0);
+        const pieData = categories.map((name, i) => ({
+            name,
+            value: parseFloat(values[i]),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[
+                { offset: 0, color: ['#60a5fa','#34d399','#fbbf24','#f87171'][i % 4] },
+                { offset: 1, color: ['#3b82f6','#10b981','#f59e0b','#ef4444'][i % 4] }
+            ]) }
+        }));
+        EC('depthChartContainer').setOption({
+            title: { text: '埋深分布统计', left: 'center', textStyle: { fontSize: 15, fontWeight: 'bold' } },
+            tooltip: { trigger: 'item', formatter: '{b}: {c}m ({d}%)' },
+            legend: { orient: 'horizontal', bottom: 0 },
+            series: [{
+                name: '埋深', type: 'pie', radius: ['40%','75%'], center: ['50%','50%'],
+                data: pieData,
+                label: { show: true, formatter: '{d}%', fontSize: 14, fontWeight: 'bold' },
+                emphasis: { itemStyle: { shadowBlur: 10 } }
+            }]
+        });
+        let tbody = $('#depthTableBody').empty();
+        pieData.forEach(item => {
+            const pct = ((item.value / totalLength) * 100).toFixed(2);
+            tbody.append(`<tr><td>${item.name}</td><td>${item.value.toFixed(2)}</td><td>${pct}%</td></tr>`);
+        });
+
+        // 属性分布
+        const allY = [...fyt, ...fytun];
+        const yMin = Math.floor(Math.min(...allY) / 100) * 100 - 200;
+        const yMax = Math.ceil(Math.max(...allY) / 100) * 100;
+
+        attrFullData = {};
+        fxs.forEach(x => {
+            const row = finalTable.find(r => x >= r[0] && x <= r[1]);
+            const II = row ? Number(row[4]) : 0;
+            const III = row ? Number(row[5]) : 0;
+            const IV = row ? Number(row[6]) : 0;
+            const V = row ? Number(row[7]) : 0;
+            const fault = row ? Number(row[8]) : 0;
+            const lenMap = { "II类": II, "III类": III, "IV类": IV, "V类": V, "断层": fault };
+            let maxLen = -1, rockType = "未知";
+            for (const t in lenMap) { if (lenMap[t] > maxLen) { maxLen = lenMap[t]; rockType = t; } }
+            attrFullData[x] = {
+                '施工方法': row ? row[2] : "无",
+                '围岩类别': rockType,
+                '岩爆': row ? row[16] : "无",
+                '软岩变形': row ? row[17] : "无",
+                '突泥涌水': row ? row[14] : "无",
+                '有害气体': row ? row[19] : "无",
+                '高地温': row ? row[20] : "无",
+                '其他': row ? row[21] : "无"
+            };
+        });
+        function getOriginalRockText(x) {
+            const row = finalTable.find(r => x >= r[0] && x <= r[1]);
+            return row ? row[3] : "";
+        }
+        const maxDepIdx = fdep.indexOf(Math.max(...fdep));
+        const maxDepX = fxs[maxDepIdx];
+        const maxDepY = fyt[maxDepIdx];
+        const maxDepVal = Math.round(fdep[maxDepIdx]);
+
+        EC('profileChart').setOption({
+            title: { text: '隧洞断面可视化', left: 'center', textStyle: { fontSize: 16, fontWeight: 'bold' } },
+            tooltip: {
+                trigger: 'axis',
+                formatter: params => {
+                    const x = params[0].axisValue;
+                    const d = attrFullData[x] || {};
+                    return `桩号：${x}<br/>施工方法：${d['施工方法'] || '-'}<br/>围岩类别：${getOriginalRockText(x) || '-'}<br/>岩爆：${d['岩爆'] || '-'}<br/>软岩变形：${d['软岩变形'] || '-'}<br/>突泥涌水：${d['突泥涌水'] || '-'}<br/>有害气体：${d['有害气体'] || '-'}<br/>高地温：${d['高地温'] || '-'}<br/>其他：${d['其他'] || '-'}`;
+                }
+            },
+            legend: { data: ['地面高程','隧洞底板'], right: 20, top: 15 },
+            grid: { left: '3%', right: '4%', top: '12%', bottom: '15%', containLabel: true },
+            xAxis: { type: 'value', name: '桩号(m)', nameLocation: 'middle', nameGap: 35, min: tableStart, max: tableEnd },
+            yAxis: { type: 'value', min: yMin, max: yMax, name: '高程(m)' },
+            series: [
+                { name: '地面高程', type: 'line', data: fxs.map((x, i) => [x, fyt[i]]), showSymbol: false, lineStyle: { width: 3, color: '#FF8C42' },
+                    areaStyle: { color: new echarts.graphic.LinearGradient(0,1,0,0,[{offset:0,color:'#FFE0B2'},{offset:1,color:'#FF8C42'}]) } },
+                { name: '隧洞底板', type: 'line', data: fxs.map((x, i) => [x, fytun[i]]), showSymbol: false, lineStyle: { width: 3, color: '#8dd1e1' } },
+                { name: '最大埋深', type: 'scatter', data: [[maxDepX, maxDepY]], symbolSize: 12, itemStyle: { color: '#ff0000', borderWidth: 2, borderColor: '#fff' },
+                    label: { show: true, formatter: `最大埋深：${maxDepVal}m`, position: 'top', fontSize: 14, fontWeight: 'bold', color: '#ff0000' } }
+            ]
+        });
+        renderAttrDistribution();
+        return true;
+    } catch (err) {
+        alert('计算失败：' + err.message);
+        return false;
+    }
+}
+
+$('#processData').click(() => {
+    const tableSuccess = doGenerateTableFirst();
+    if (tableSuccess) {
+        doCalcDepthFromTable();
+        alert('数据处理完成！\n✅ 已生成地质统计表\n✅ 已绘制所有图表');
+    }
+});
+
+// ===================================================================
+//  属性分布图
+// ===================================================================
+function renderAttrDistribution() {
+    const container = $('#attrDistribution').empty();
+    if (!attrFullData || !Object.keys(attrFullData).length) return;
+    const xs = Object.keys(attrFullData).map(Number).sort((a, b) => a - b);
+    const minX = xs[0], maxX = xs[xs.length - 1], totalLen = maxX - minX;
+    const attrKeys = [
+        { key: '施工方法', label: '施工方法' },{ key: '围岩类别', label: '围岩类别' },{ key: '岩爆', label: '岩爆' },{ key: '软岩变形', label: '软岩变形' },
+        { key: '突泥涌水', label: '突泥涌水' },{ key: '有害气体', label: '有害气体' },{ key: '高地温', label: '高地温' },{ key: '其他', label: '其他' }
+    ];
+    const attrSortMap = {
+        '围岩类别': ["II类","III类","IV类","V类","断层"],
+        '岩爆': ["无","微","中","强","极强"],
+        '突泥涌水': ["I","II","III","IV","V"],
+        '有害气体': ["无","微瓦斯","低瓦斯","高瓦斯"],
+        '高地温': ["无","轻微中等","热害轻微"],
+        '软岩变形': ["无","1级","2级","3级","4级"],
+        '施工方法': [], '其他': []
+    };
+    const colorPool = ["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4"];
+    attrKeys.forEach(ak => {
+        const key = ak.key, label = ak.label;
+        const allValues = [...new Set(xs.map(x => attrFullData[x][key] || "无"))];
+        const sortOrder = attrSortMap[label] || [];
+        const values = [];
+        sortOrder.forEach(v => { if (allValues.includes(v)) values.push(v); });
+        allValues.forEach(v => { if (!values.includes(v)) values.push(v); });
+        const valColor = {};
+        values.forEach((v, i) => {
+            if (isEmptyValue(v)) { valColor[v] = "#cccccc"; }
+            else { valColor[v] = colorMap[v] || colorPool[i % colorPool.length]; }
+        });
+        const row = $('<div class="attr-row"></div>');
+        row.append(`<div class="attr-label">${label}</div>`);
+        const legend = $('<div class="attr-legend"></div>');
+        values.forEach(v => {
+            legend.append(`<div class="legend-item"><div class="legend-color" style="background:${valColor[v]}"></div><span>${v}</span></div>`);
+        });
+        row.append(legend);
+        const bar = $('<div class="length-progress"></div>');
+        for (let i = 0; i < xs.length - 1; i++) {
+            const x1 = xs[i], x2 = xs[i + 1];
+            const v = attrFullData[x1][key] || "无";
+            const left = ((x1 - minX) / totalLen) * 100;
+            const width = ((x2 - x1) / totalLen) * 100;
+            bar.append(`<div class="active" style="left:${left}%;width:${width}%;background:${valColor[v]};border:none;margin:0;padding:0;"></div>`);
+        }
+        row.append(bar);
+        container.append(row);
+    });
+}
+
+$('#downloadAttrImg').click(function() {
+    const target = document.querySelector('#captureArea');
+    html2canvas(target, { scale: 6, useCORS: true, logging: false, backgroundColor: '#ffffff' }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = '隧洞属性分布图.png';
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+    });
+});
+
+// ===================================================================
+//  施工分段
+// ===================================================================
+function loadConstructionOptions() {
+    const types = new Set();
+    finalTable.forEach(row => types.add(row[2] || "未知施工段"));
+    allConstructionTypes = Array.from(types);
+    const sel = $('#constructionSelect').empty().append('<option value="all">全部施工段</option>');
+    allConstructionTypes.forEach(t => sel.append(`<option value="${t}">${t}</option>`));
+}
+
+function showLengthInfo(selected) {
+    let segList, displayName, totalLen;
+    if (selected === 'all') {
+        segList = finalTable;
+        displayName = "全部施工段";
+        totalLen = totalTunnelLength;
+    } else {
+        segList = finalTable.filter(r => (r[2] || '未知施工段') === selected);
+        displayName = selected;
+        totalLen = segList.reduce((sum, s) => sum + (s[1] - s[0]), 0);
+    }
+    if (!segList.length) { $('#lengthInfo').hide(); return; }
+    const globalStart = finalTable[0][0];
+    const globalEnd = finalTable[finalTable.length - 1][1];
+    const globalTotal = globalEnd - globalStart;
+    $('#lengthText').text(`当前段：${displayName} | 总长度：${totalLen.toFixed(2)}m`);
+    const container = $('#progressContainer').empty();
+    segList.forEach(seg => {
+        const left = ((seg[0] - globalStart) / globalTotal) * 100;
+        const width = ((seg[1] - seg[0]) / globalTotal) * 100;
+        container.append(`<div class="active" style="left:${left}%;width:${width}%;position:absolute;height:100%;background:#ef4444;"></div>`);
+    });
+    $('#lengthInfo').show();
+}
+
+// ===================================================================
+//  饼图
+// ===================================================================
+function getSortedData(dataMap, type) {
+    const sorted = [];
+    const rule = sortRules[type] || [];
+    rule.forEach(k => { if (dataMap[k] !== undefined) sorted.push(k); });
+    Object.keys(dataMap).forEach(k => { if (!sorted.includes(k)) sorted.push(k); });
+    const colorPalette = ["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc","#5ad9a3"];
+    return sorted.map((name, idx) => ({
+        name,
+        value: dataMap[name],
+        itemStyle: { color: isEmptyValue(name) ? "#cccccc" : (colorMap[name] || colorPalette[idx % colorPalette.length]) }
+    }));
+}
+
+function drawPie(chart, dataArr, titleText) {
+    const labelPos = $('#labelPosition').val();
+    const labelSize = parseInt($('#labelFontSize').val());
+    const labelColor = $('#labelColor').val();
+    const labelCfg = { show: true, fontSize: labelSize, color: labelColor, formatter: '{d}%', fontWeight: 'bold' };
+    if (labelPos === 'inner') labelCfg.position = 'inner';
+    else if (labelPos === 'outside') labelCfg.position = 'outside';
+    else if (labelPos === 'top') labelCfg.position = 'top';
+    chart.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { type: 'scroll', orient: 'horizontal', bottom: 0, textStyle: { fontSize: 13 } },
+        series: [{
+            name: '', type: 'pie', radius: ['45%','80%'], center: ['50%','50%'],
+            data: dataArr, label: labelCfg,
+            labelLine: { show: labelPos === 'outside' },
+            emphasis: { itemStyle: { shadowBlur: 10 } }
+        }]
+    });
+}
+
+function generateDataTable(tableId, dataMap, sortKey) {
+    const total = Object.values(dataMap).reduce((a, b) => a + b, 0);
+    let keys = Object.keys(dataMap);
+    if (sortKey && sortRules[sortKey]) {
+        const ordered = sortRules[sortKey].filter(k => dataMap[k] !== undefined);
+        const rest = keys.filter(k => !sortRules[sortKey].includes(k));
+        keys = [...ordered, ...rest];
+    }
+    let html = '<thead><tr><th>类型</th><th>长度(m)</th><th>占比(%)</th></tr></thead><tbody>';
+    keys.forEach(key => {
+        const len = dataMap[key].toFixed(2);
+        const pct = ((dataMap[key] / total) * 100).toFixed(2);
+        html += `<tr><td>${key}</td><td>${len}</td><td>${pct}</td></tr>`;
+    });
+    html += '</tbody>';
+    $(`#${tableId}`).html(html);
+}
+
+function buildAllCharts(data) {
+    const rockData = {
+        "II类": data.reduce((s, r) => s + r[4], 0),
+        "III类": data.reduce((s, r) => s + r[5], 0),
+        "IV类": data.reduce((s, r) => s + r[6], 0),
+        "V类": data.reduce((s, r) => s + r[7], 0),
+        "断层": data.reduce((s, r) => s + r[8], 0)
+    };
+    const waterMap = {}, rbMap = {}, softMap = {}, gasMap = {}, tempMap = {}, otherMap = {};
+    data.forEach(row => {
+        const l = row[1] - row[0];
+        const key = (k) => row[k] || "无";
+        waterMap[key(14)] = (waterMap[key(14)] || 0) + l;
+        rbMap[key(16)] = (rbMap[key(16)] || 0) + l;
+        softMap[key(17)] = (softMap[key(17)] || 0) + l;
+        gasMap[key(19)] = (gasMap[key(19)] || 0) + l;
+        tempMap[key(20)] = (tempMap[key(20)] || 0) + l;
+        otherMap[key(21)] = (otherMap[key(21)] || 0) + l;
+    });
+
+    const draw = (id, map, sortKey, title) => {
+        const filtered = filterZero(map);
+        drawPie(EC(id), getSortedData(filtered, sortKey), title);
+    };
+    draw('pieRock', rockData, '围岩类别', '围岩类别占比');
+    draw('pieWater', waterMap, '突涌水', '突涌水风险占比');
+    draw('pieRockburst', rbMap, '岩爆', '岩爆占比');
+    draw('pieSoft', softMap, '软岩变形', '软岩变形占比');
+    draw('pieGas', gasMap, '有害气体', '有害气体占比');
+    draw('pieTemp', tempMap, '高地温', '中高地温占比');
+    draw('pieOther', otherMap, '其他', '自定义占比');
+
+    generateDataTable('tableRock', filterZero(rockData), '围岩类别');
+    generateDataTable('tableWater', filterZero(waterMap), '突涌水');
+    generateDataTable('tableRockburst', filterZero(rbMap), '岩爆');
+    generateDataTable('tableSoft', filterZero(softMap), '软岩变形');
+    generateDataTable('tableGas', filterZero(gasMap), '有害气体');
+    generateDataTable('tableTemp', filterZero(tempMap), '高地温');
+    generateDataTable('tableOther', filterZero(otherMap));
+}
+
+function refreshAllCharts() {
+    if (!finalTable.length) return;
+    const selected = $('#constructionSelect').val();
+    const filtered = selected !== 'all' ? finalTable.filter(row => (row[2] || "未知施工段") === selected) : finalTable;
+    showLengthInfo(selected);
+    buildAllCharts(filtered);
+}
+
+// 图表样式/施工分段变化时自动刷新
+function applyGlobalFontSize() {
+    const size = parseInt($('#labelFontSize').val());
+    $('.visual-card h6').css('font-size', size + 'px');
+    $('.chart-data-table thead th').css('font-size', Math.max(size - 1, 10) + 'px');
+    $('.chart-data-table tbody td').css('font-size', Math.max(size - 1, 10) + 'px');
+}
+$('#labelPosition, #labelFontSize, #labelColor, #constructionSelect').on('change', () => {
+    applyGlobalFontSize();
+    refreshAllCharts();
+    ['pieRock','pieWater','pieRockburst','pieSoft','pieGas','pieTemp','pieOther'].forEach(id => EC(id).resize());
+});
+
+// ===================================================================
+//  导出单个图表
+// ===================================================================
+function exportChart(chartId, chartType) {
+    const selected = $('#constructionSelect').val();
+    const section = selected === 'all' ? '全部施工段' : selected;
+    const fileName = `${section}${chartType}.png`;
+    const el = document.getElementById(chartId);
+    if (!el) return;
+    const card = el.closest('.visual-card');
+    if (!card) return;
+    html2canvas(card, { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff' }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+    });
+}
+
+$('#exportAllCharts').click(() => {
+    const list = [
+        { id: 'pieRock', type: '围岩类别占比' },{ id: 'pieWater', type: '突涌水占比' },
+        { id: 'pieRockburst', type: '岩爆占比' },{ id: 'pieSoft', type: '软岩变形占比' },
+        { id: 'pieGas', type: '有害气体占比' },{ id: 'pieTemp', type: '高地温占比' },
+        { id: 'pieOther', type: '其他占比' }
+    ];
+    list.forEach(c => exportChart(c.id, c.type));
+    alert('所有图表已开始导出！');
+});
+
+// ===================================================================
+//  导出 Excel
+// ===================================================================
+$('#export').click(() => {
+    if (!finalTable.length) { alert('先生成表格'); return; }
+    const headers = ["起始桩号","终点桩号","施工分段","围岩分类","II类长度","III类长度","IV类长度","V类长度","断层长度",
+        "岩性","岩体质量","岩体强度","完整程度","磨蚀性","突涌水","THR","岩爆","软岩变形","强度应力比","有害气体","高地温","其他","平均涌水","最大涌水","埋深区间"];
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...finalTable]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "地质统计表");
+    XLSX.writeFile(wb, "隧洞地质统计表.xlsx");
+});
+
+// ===================================================================
+//  TBM 适宜性曲线
+// ===================================================================
+$('#uploadTbm').click(() => $('#tbmFileInput').click());
+$('#tbmFileInput').change(function(e) {
+    if (!e.target.files.length) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            const wb = XLSX.read(ev.target.result, { type: 'binary' });
+            tbmData = {};
+            let tip = '';
+            tbmSheetNames.forEach(name => {
+                if (wb.SheetNames.includes(name)) {
+                    tbmData[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+                    tip += `${name} ✅ | `;
+                } else {
+                    tbmData[name] = null;
+                    tip += `${name} ❌ | `;
+                }
+            });
+            $('#tbmImportTip').html(`<i class="bi bi-check-circle text-success me-1"></i>${tip}`);
+            // 自动绘图
+            drawTbmLineNum(EC('tbmChart1'), tbmData["岩体质量"]);
+            drawTbmLineCat(EC('tbmChart2'), tbmData["完整程度"]);
+            drawTbmLineNum(EC('tbmChart3'), tbmData["磨蚀性"]);
+            drawTbmLineCat(EC('tbmChart4'), tbmData["岩爆"]);
+            drawTbmLineNum(EC('tbmChart5'), tbmData["强度应力比"]);
+            drawTbmLineNum(EC('tbmChart6'), tbmData["THR"]);
+            setTimeout(() => { ['tbmChart1','tbmChart2','tbmChart3','tbmChart4','tbmChart5','tbmChart6'].forEach(id => EC(id).resize()); }, 300);
+        } catch (err) {
+            alert('导入失败：' + err.message);
+        }
+    };
+    reader.readAsBinaryString(e.target.files[0]);
+});
+
+// 数值型 X 轴
+function drawTbmLineNum(chart, sheet) {
+    if (!sheet || !sheet.length) { chart.setOption({ title: { text: "无数据" } }); return; }
+    const xData = [], open = [], double = [], single = [];
+    for (let i = 1; i < sheet.length; i++) {
+        const r = sheet[i];
+        if (r.length < 4) continue;
+        const x = parseFloat(r[0]);
+        if (isNaN(x)) continue;
+        xData.push(x);
+        open.push(parseFloat(r[1]) || 0);
+        double.push(parseFloat(r[2]) || 0);
+        single.push(parseFloat(r[3]) || 0);
+    }
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['敞开式','双护盾','单护盾'], bottom: 0, textStyle: { fontSize: 14, color: '#000' } },
+        xAxis: {
+            type: 'value', name: sheet[0][0] || '参数',
+            nameLocation: 'middle', nameGap: 25,
+            nameTextStyle: { fontSize: 15, color: '#000' },
+            axisLabel: { fontSize: 13, color: '#000' },
+            axisLine: { lineStyle: { color: '#000' } },
+            splitLine: { show: false }
+        },
+        yAxis: {
+            type: 'value', name: '适宜性指数', min: 0, max: 1,
+            nameTextStyle: { fontSize: 15, color: '#000' },
+            axisLabel: { fontSize: 13, color: '#000' },
+            axisLine: { lineStyle: { color: '#000' } },
+            splitLine: { lineStyle: { color: '#eee' } }
+        },
+        series: [
+            { name: '敞开式', type: 'line', data: xData.map((v, i) => [v, open[i]]), smooth: true, lineStyle: { width: 3 } },
+            { name: '双护盾', type: 'line', data: xData.map((v, i) => [v, double[i]]), smooth: true, lineStyle: { width: 3 } },
+            { name: '单护盾', type: 'line', data: xData.map((v, i) => [v, single[i]]), smooth: true, lineStyle: { width: 3 } }
+        ]
+    });
+}
+
+// 分类型 X 轴
+function drawTbmLineCat(chart, sheet) {
+    if (!sheet || !sheet.length) { chart.setOption({ title: { text: "无数据" } }); return; }
+    const xData = [], open = [], double = [], single = [];
+    for (let i = 1; i < sheet.length; i++) {
+        const r = sheet[i];
+        if (r.length < 4) continue;
+        const x = r[0] + '';
+        if (!x) continue;
+        xData.push(x.trim());
+        open.push(parseFloat(r[1]) || 0);
+        double.push(parseFloat(r[2]) || 0);
+        single.push(parseFloat(r[3]) || 0);
+    }
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['敞开式','双护盾','单护盾'], bottom: 0, textStyle: { fontSize: 14, color: '#000' } },
+        xAxis: {
+            type: 'category', data: xData,
+            nameLocation: 'middle', nameGap: 25,
+            nameTextStyle: { fontSize: 15, color: '#000' },
+            axisLabel: { fontSize: 13, color: '#000' },
+            axisLine: { lineStyle: { color: '#000' } },
+            splitLine: { show: false }
+        },
+        yAxis: {
+            type: 'value', name: '适宜性指数', min: 0, max: 1,
+            nameTextStyle: { fontSize: 15, color: '#000' },
+            axisLabel: { fontSize: 13, color: '#000' },
+            axisLine: { lineStyle: { color: '#000' } },
+            splitLine: { lineStyle: { color: '#eee' } }
+        },
+        series: [
+            { name: '敞开式', type: 'line', data: open, lineStyle: { width: 3 } },
+            { name: '双护盾', type: 'line', data: double, lineStyle: { width: 3 } },
+            { name: '单护盾', type: 'line', data: single, lineStyle: { width: 3 } }
+        ]
+    });
+}
+
+// ===================================================================
+//  TBM 适宜性分析
+// ===================================================================
+function runCalcTbmSuit() {
+    return new Promise((resolve, reject) => {
+        if (!finalTable.length) { reject(new Error('请先完成地质数据处理！')); return; }
+        if (!Object.keys(tbmData).length) { reject(new Error('请先导入 TBM 适宜性数据！')); return; }
+        try {
+            const result = [];
+            finalTable.forEach(row => {
+                const start = row[0], end = row[1];
+                const quality = row[11], integrity = row[12], abrasion = row[13], thr = row[15], rockburst = row[16], stress = row[18];
+                const isEmpty = v => !v || v === '' || v === '-' || v === '未知';
+                const qs = isEmpty(quality)   ? { open: 1, double: 1, single: 1 } : interpolateSuit(tbmData["岩体质量"], parseFloat(quality));
+                const ins = isEmpty(integrity) ? { open: 1, double: 1, single: 1 } : matchSuit(tbmData["完整程度"], integrity);
+                const ass = isEmpty(abrasion)  ? { open: 1, double: 1, single: 1 } : interpolateSuit(tbmData["磨蚀性"], parseFloat(abrasion));
+                const ths = isEmpty(thr)       ? { open: 1, double: 1, single: 1 } : interpolateSuit(tbmData["THR"], parseFloat(thr));
+                const rbs = isEmpty(rockburst) ? { open: 1, double: 1, single: 1 } : matchSuit(tbmData["岩爆"], rockburst);
+                const sts = isEmpty(stress)    ? { open: 1, double: 1, single: 1 } : interpolateSuit(tbmData["强度应力比"], parseFloat(stress));
+                result.push([start, end, quality, integrity, abrasion, thr, rockburst, stress,
+                    qs.open, ins.open, ass.open, rbs.open, sts.open, ths.open,
+                    qs.double, ins.double, ass.double, rbs.double, sts.double, ths.double,
+                    qs.single, ins.single, ass.single, rbs.single, sts.single, ths.single
+                ]);
+            });
+            const headers = ["起始桩号","终点桩号","岩体质量","完整程度","磨蚀性","THR","岩爆","强度应力比",
+                "敞开-岩体质量","敞开-完整程度","敞开-磨蚀性","敞开-岩爆","敞开-强度应力比","敞开-THR",
+                "双护盾-岩体质量","双护盾-完整程度","双护盾-磨蚀性","双护盾-岩爆","双护盾-强度应力比","双护盾-THR",
+                "单护盾-岩体质量","单护盾-完整程度","单护盾-磨蚀性","单护盾-岩爆","单护盾-强度应力比","单护盾-THR"];
+            let html = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+            result.forEach(r => {
+                html += '<tr>' + r.map(c => `<td>${typeof c === 'number' ? c.toFixed(3) : (c || '-')}</td>`).join('') + '</tr>';
+            });
+            html += '</tbody>';
+            $('#tbmResultTable').html(html);
+            resolve();
+        } catch (err) { reject(new Error('适宜性分析失败：' + err.message)); }
+    });
+}
+
+// ===================================================================
+//  TBM 选型分析
+// ===================================================================
+$('#uploadTbmType').click(() => $('#tbmTypeFileInput').click());
+$('#tbmTypeFileInput').change(function(e) {
+    if (!e.target.files.length) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            const wb = XLSX.read(ev.target.result, { type: 'binary' });
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            tbmTypeData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            // 渲染进度数据表格
+            let html = '<thead><tr>';
+            if (tbmTypeData.length) {
+                tbmTypeData[0].forEach(h => { html += `<th>${h}</th>`; });
+                html += '</tr></thead><tbody>';
+                for (let i = 1; i < tbmTypeData.length; i++) {
+                    html += '<tr>' + tbmTypeData[i].map(v => `<td>${v ?? ''}</td>`).join('') + '</tr>';
+                }
+                html += '</tbody>';
+            }
+            $('#tbmTypeDataTable').html(html);
+            // 渲染进度柱状图（敞开/双护盾/单护盾三色分组）
+            if (tbmTypeData.length >= 7) {
+                const cats = ['II类','III类','IV类','V类','断层'];
+                const tbmNames = ['敞开式','双护盾','单护盾'];
+                const tbmColors = ['#5470c6','#91cc75','#fac858'];
+                const tbmRows = [1,3,5]; // 敞开,双护盾,单护盾
+                const extract = (rowIdx, ci) => Math.round(parseFloat(tbmTypeData[rowIdx][ci + 1]) || 0);
+                const makeSeries = (rowOffsets) => tbmNames.map((name, ti) => ({
+                    name,
+                    type: 'bar',
+                    data: cats.map((_, ci) => extract(rowOffsets[ti], ci)),
+                    itemStyle: { color: tbmColors[ti] },
+                    label: { show: true, position: 'top', fontWeight:'bold', fontSize: 13, formatter: p => Math.round(p.value) }
+                }));
+                EC('tbmProgressNormal').setOption({
+                    tooltip: { trigger: 'axis' },
+                    legend: { data: tbmNames, bottom: 5, textStyle: { fontSize: 12 } },
+                    grid: { left: '10%', right: '5%', top: '10%', bottom: '22%', containLabel: true },
+                    xAxis: { type: 'category', data: cats, axisLabel: { fontWeight:'bold', fontSize: 13 } },
+                    yAxis: { type: 'value', name: '月/公里', min: 0 },
+                    series: makeSeries([1,3,5])
+                });
+                EC('tbmProgressDiscount').setOption({
+                    tooltip: { trigger: 'axis' },
+                    legend: { data: tbmNames, bottom: 5, textStyle: { fontSize: 12 } },
+                    grid: { left: '10%', right: '5%', top: '10%', bottom: '22%', containLabel: true },
+                    xAxis: { type: 'category', data: cats, axisLabel: { fontWeight:'bold', fontSize: 13 } },
+                    yAxis: { type: 'value', name: '月/公里', min: 0 },
+                    series: makeSeries([2,4,6])
+                });
+                setTimeout(() => { EC('tbmProgressNormal').resize(); EC('tbmProgressDiscount').resize(); }, 200);
+            }
+            // 隐藏原始数据表格
+            $('#tbmTypeDataTable').closest('.table-wrap').hide();
+            $('#tbmTypeImportTip').html(`<i class="bi bi-check-circle text-success me-1"></i>导入完成：共 ${tbmTypeData.length - 1} 行数据`);
+        } catch (err) {
+            alert('导入失败：' + err.message);
+        }
+    };
+    reader.readAsBinaryString(e.target.files[0]);
+});
+
+// 一键计算
+$('#calcSubCoeff').off('click').on('click', async function() {
+    try {
+        await runCalcTbmSuit();
+        await runCalcSubCoeff();
+        await runCalcWeight();
+        await runCalcFinalSuitIndex();
+        await runShowSuitResult();
+    } catch (err) {
+        alert('计算失败：' + err.message);
+        console.error(err);
+    }
+});
+
+// 分项系数（秩）
+function runCalcSubCoeff() {
+    return new Promise((resolve, reject) => {
+        const rows = $('#tbmResultTable tbody tr');
+        if (!rows.length) { reject(new Error('请先计算【TBM适宜性指数】，生成结果表！')); return; }
+        try {
+            const result = [];
+            function getRank(arr) {
+                const sorted = [...new Set(arr)].sort((a, b) => a - b);
+                const map = {};
+                sorted.forEach((v, i) => { map[v] = i + 1; });
+                return arr.map(v => map[v]);
+            }
+            rows.each(function() {
+                const tds = $(this).find('td');
+                if (tds.length < 26) return;
+                const row = [];
+                tds.each((i, td) => row.push(parseFloat($(td).text().trim()) || 0));
+                const openList = [row[8], row[9], row[10], row[11], row[12], row[13]];
+                const doubleList = [row[14], row[15], row[16], row[17], row[18], row[19]];
+                const singleList = [row[20], row[21], row[22], row[23], row[24], row[25]];
+                const rOpen = getRank(openList);
+                const rDouble = getRank(doubleList);
+                const rSingle = getRank(singleList);
+                result.push([row[0], row[1], ...rOpen, ...rDouble, ...rSingle]);
+            });
+            const headers = ["起始桩号","终点桩号",
+                "敞开-岩体质量","敞开-完整程度","敞开-磨蚀性","敞开-岩爆","敞开-强度应力比","敞开-THR",
+                "双护盾-岩体质量","双护盾-完整程度","双护盾-磨蚀性","双护盾-岩爆","双护盾-强度应力比","双护盾-THR",
+                "单护盾-岩体质量","单护盾-完整程度","单护盾-磨蚀性","单护盾-岩爆","单护盾-强度应力比","单护盾-THR"];
+            let html = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+            result.forEach(r => { html += '<tr>' + r.map(v => `<td>${v}</td>`).join('') + '</tr>'; });
+            html += '</tbody>';
+            $('#subCoeffTable').html(html);
+            resolve();
+        } catch (err) { reject(err); }
+    });
+}
+
+// AHP 权重
+function runCalcWeight() {
+    return new Promise((resolve, reject) => {
+        const rows = $('#subCoeffTable tbody tr');
+        if (!rows.length) { reject(new Error('请先完成分项系数计算！')); return; }
+        try {
+            const result = [];
+            function calcAhpWeight(ranks) {
+                const n = 6;
+                const matrix = Array.from({ length: n }, () => Array(n).fill(0));
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        const d = ranks[j] - ranks[i];
+                        matrix[i][j] = d === 0 ? 1 : (d > 0 ? d + 1 : 1.0 / (-d + 1));
+                    }
+                }
+                const rowProduct = matrix.map(row => row.reduce((a, b) => a * b, 1));
+                const geoMean = rowProduct.map(p => Math.pow(p, 1 / n));
+                const sum = geoMean.reduce((a, b) => a + b, 0);
+                return geoMean.map(g => g / sum);
+            }
+            rows.each(function() {
+                const tds = $(this).find('td');
+                if (tds.length < 20) return;
+                const row = [];
+                tds.each((i, td) => row.push(parseFloat($(td).text().trim()) || 0));
+                const openW = calcAhpWeight([row[2], row[3], row[4], row[5], row[6], row[7]]);
+                const doubleW = calcAhpWeight([row[8], row[9], row[10], row[11], row[12], row[13]]);
+                const singleW = calcAhpWeight([row[14], row[15], row[16], row[17], row[18], row[19]]);
+                result.push([row[0], row[1], ...openW, ...doubleW, ...singleW]);
+            });
+            const headers = ["起始桩号","终点桩号",
+                "敞开-岩体质量","敞开-完整程度","敞开-磨蚀性","敞开-岩爆","敞开-强度应力比","敞开-THR",
+                "双护盾-岩体质量","双护盾-完整程度","双护盾-磨蚀性","双护盾-岩爆","双护盾-强度应力比","双护盾-THR",
+                "单护盾-岩体质量","单护盾-完整程度","单护盾-磨蚀性","单护盾-岩爆","单护盾-强度应力比","单护盾-THR"];
+            let $panel = $('#weightResultPanel');
+            if (!$panel.length) {
+                $panel = $(`
+                    <div class="section-title mt-4">AHP 权重计算结果</div>
+                    <div class="table-wrap mb-3" id="weightResultPanel">
+                        <table id="weightTable" class="table table-bordered table-hover"></table>
+                    </div>
+                `);
+                $('#tbm-2 .card-modern').append($panel);
+            }
+            let body = '';
+            result.forEach(r => {
+                body += '<tr>' + r.map(v => `<td>${typeof v === 'number' ? v.toFixed(4) : v}</td>`).join('') + '</tr>';
+            });
+            $('#weightTable').html('<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>' + body + '</tbody>');
+            resolve();
+        } catch (err) { reject(err); }
+    });
+}
+
+// 适宜性指数
+function runCalcFinalSuitIndex() {
+    return new Promise((resolve, reject) => {
+        const scoreRows = $('#tbmResultTable tbody tr');
+        const weightRows = $('#weightTable tbody tr');
+        const geoRows = $('#resultTable tbody tr');
+        if (!scoreRows.length || !weightRows.length || !geoRows.length) {
+            reject(new Error('请先完成：适宜性分析 → 分项系数 → 权重！'));
+            return;
+        }
+        try {
+            const result = [];
+            scoreRows.each(function(idx) {
+                const wRow = $(weightRows[idx]);
+                const gRow = $(geoRows[idx]);
+                if (!gRow.length) return;
+                const sc = []; $(this).find('td').each((i, td) => sc.push(parseFloat($(td).text().trim()) || 0));
+                const wg = []; wRow.find('td').each((i, td) => wg.push(parseFloat($(td).text().trim()) || 0));
+                const start = sc[0], end = sc[1];
+                const c1 = gRow.find('td').eq(4).text().trim() || '0';
+                const c2 = gRow.find('td').eq(5).text().trim() || '0';
+                const c3 = gRow.find('td').eq(6).text().trim() || '0';
+                const c4 = gRow.find('td').eq(7).text().trim() || '0';
+                const c5 = gRow.find('td').eq(8).text().trim() || '0';
+                const c6 = gRow.find('td').eq(16).text().trim() || '-';
+                const openScore = [sc[8], sc[9], sc[10], sc[11], sc[12], sc[13]];
+                const doubleScore = [sc[14], sc[15], sc[16], sc[17], sc[18], sc[19]];
+                const singleScore = [sc[20], sc[21], sc[22], sc[23], sc[24], sc[25]];
+                const openW = [wg[2], wg[3], wg[4], wg[5], wg[6], wg[7]];
+                const doubleW = [wg[8], wg[9], wg[10], wg[11], wg[12], wg[13]];
+                const singleW = [wg[14], wg[15], wg[16], wg[17], wg[18], wg[19]];
+                const sumW = (s, w) => s.reduce((a, v, i) => a + v * w[i], 0);
+                result.push([start, end, c1, c2, c3, c4, c5, c6, sumW(openScore, openW), sumW(doubleScore, doubleW), sumW(singleScore, singleW)]);
+            });
+            const headers = ["起始桩号","终点桩号","II类","III类","IV类","V类","断层","岩爆","敞开式适宜性","双护盾适宜性","单护盾适宜性"];
+            let $panel = $('#finalSuitPanel');
+            if (!$panel.length) {
+                $panel = $(`
+                    <div class="section-title mt-3"></div>
+                    <div class="table-wrap mb-3" id="finalSuitPanel">
+                        <table id="finalSuitTable" class="table table-bordered table-hover"></table>
+                    </div>
+                `);
+                $('#tbm-2 .card-modern').append($panel);
+            }
+            let body = '';
+            result.forEach(r => {
+                body += '<tr>' + r.map((v, i) => `<td>${i >= 8 ? v.toFixed(4) : v}</td>`).join('') + '</tr>';
+            });
+            $('#finalSuitTable').html('<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>' + body + '</tbody>');
+            resolve();
+        } catch (err) { reject(err); }
+    });
+}
+
+// 最终选型结果
+function runShowSuitResult() {
+    return new Promise((resolve, reject) => {
+        const suitRows = $('#finalSuitTable tbody tr');
+        const progressData = tbmTypeData.slice(1);
+        if (!suitRows.length) { reject(new Error('请先完成前面三步计算！')); return; }
+        if (progressData.length < 6) { reject(new Error('请先导入进度数据（需要6行）！')); return; }
+        try {
+            let sumOpenScore = 0, sumOpenProgress = 0;
+            let sumDoubleScore = 0, sumDoubleProgress = 0;
+            let sumSingleScore = 0, sumSingleProgress = 0;
+            const result = [];
+            suitRows.each(function(idx) {
+                const tds = $(this).find('td');
+                const start = tds.eq(0).text().trim();
+                const end = tds.eq(1).text().trim();
+                const c1 = tds.eq(2).text().trim() || '0';
+                const c2 = tds.eq(3).text().trim() || '0';
+                const c3 = tds.eq(4).text().trim() || '0';
+                const c4 = tds.eq(5).text().trim() || '0';
+                const c5 = tds.eq(6).text().trim() || '0';
+                const rockburst = tds.eq(7).text().trim() || '';
+                const L = [parseFloat(c1)||0, parseFloat(c2)||0, parseFloat(c3)||0, parseFloat(c4)||0, parseFloat(c5)||0];
+                const isStrongRb = rockburst === '强' || rockburst === '极强';
+                const openRow = isStrongRb ? 1 : 0;
+                const doubleRow = isStrongRb ? 3 : 2;
+                const singleRow = isStrongRb ? 5 : 4;
+                const getProgress = (rowIdx) => {
+                    const row = progressData[rowIdx];
+                    return row ? [1,2,3,4,5].map(i => parseFloat(row[i]) || 1) : [1,1,1,1,1];
+                };
+                const P_open = getProgress(openRow);
+                const P_double = getProgress(doubleRow);
+                const P_single = getProgress(singleRow);
+                const calcScore = (lenArr, proArr) => lenArr.reduce((a, v, j) => a + v / proArr[j], 0);
+                const openProgress = calcScore(L, P_open);
+                const doubleProgress = calcScore(L, P_double);
+                const singleProgress = calcScore(L, P_single);
+                const openFinal = parseFloat(tds.eq(8).text().trim()) || 0;
+                const doubleFinal = parseFloat(tds.eq(9).text().trim()) || 0;
+                const singleFinal = parseFloat(tds.eq(10).text().trim()) || 0;
+                sumOpenScore += openFinal * openProgress;
+                sumOpenProgress += openProgress;
+                sumDoubleScore += doubleFinal * doubleProgress;
+                sumDoubleProgress += doubleProgress;
+                sumSingleScore += singleFinal * singleProgress;
+                sumSingleProgress += singleProgress;
+                result.push([start, end, c1, c2, c3, c4, c5, rockburst, openFinal, doubleFinal, singleFinal, openProgress, doubleProgress, singleProgress]);
+            });
+            const openTotal = sumOpenProgress > 0 ? (sumOpenScore / sumOpenProgress) * 100 : 0;
+            const doubleTotal = sumDoubleProgress > 0 ? (sumDoubleScore / sumDoubleProgress) * 100 : 0;
+            const singleTotal = sumSingleProgress > 0 ? (sumSingleScore / sumSingleProgress) * 100 : 0;
+
+            const headers = ["桩号起","桩号止","II类","III类","IV类","V类","断层","岩爆","敞开适宜性","双护盾适宜性","单护盾适宜性","敞开进度","双护盾进度","单护盾进度"];
+            let $panel = $('#finalResultPanel');
+            if (!$panel.length) {
+                $panel = $(`
+                    <div class="section-title mt-3">TBM 最终选型结果</div>
+                    <div class="table-wrap mb-3" id="finalResultPanel">
+                        <table id="finalResultTable" class="table table-bordered table-hover"></table>
+                    </div>
+                `);
+                $('#tbm-2 .card-modern').append($panel);
+            }
+            let body = '';
+            result.forEach(r => {
+                body += '<tr>' + r.map((v, i) => `<td>${i >= 8 ? v.toFixed(4) : v}</td>`).join('') + '</tr>';
+            });
+            $('#finalResultTable').html('<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>' + body + '</tbody>');
+
+            // 工期求和
+            let sumOpenMonth = 0, sumDoubleMonth = 0, sumSingleMonth = 0;
+            result.forEach(r => {
+                sumOpenMonth += r[11];
+                sumDoubleMonth += r[12];
+                sumSingleMonth += r[13];
+            });
+            $('#totalOpenMonth').text(sumOpenMonth.toFixed(1) + ' 月');
+            $('#totalDoubleMonth').text(sumDoubleMonth.toFixed(1) + ' 月');
+            $('#totalSingleMonth').text(sumSingleMonth.toFixed(1) + ' 月');
+
+            // 显示结果卡片 + 排名
+            $('#suitOpen').text(openTotal.toFixed(1));
+            $('#suitDouble').text(doubleTotal.toFixed(1));
+            $('#suitSingle').text(singleTotal.toFixed(1));
+            const scores = [
+                { id: '#rankOpen', val: openTotal },
+                { id: '#rankDouble', val: doubleTotal },
+                { id: '#rankSingle', val: singleTotal }
+            ];
+            scores.sort((a, b) => b.val - a.val);
+            scores.forEach((s, i) => {
+                $(s.id).text(i + 1).css('background', ['var(--primary)','var(--success)','var(--warning)'][i]);
+            });
+            $('.suit-rank').removeClass('show');
+            $('.suit-value').removeClass('show');
+            $('#suitResultCardWrap').slideDown(300);
+            setTimeout(() => {
+                $('.suit-value').addClass('show');
+                setTimeout(() => $('.suit-rank').addClass('show'), 200);
+            }, 100);
+            resolve();
+        } catch (err) { reject(err); }
+    });
+}
+
+// 导出 Excel
+$('#exportTbmExcelBtn').off('click').on('click', function() {
+    try {
+        const wb = XLSX.utils.book_new();
+        const ws1 = XLSX.utils.table_to_sheet($('#finalResultTable')[0]);
+        XLSX.utils.book_append_sheet(wb, ws1, "最终选型");
+        const ws2 = XLSX.utils.table_to_sheet($('#weightTable')[0]);
+        XLSX.utils.book_append_sheet(wb, ws2, "AHP权重");
+        XLSX.writeFile(wb, "TBM适宜性计算结果.xlsx");
+    } catch (e) {
+        alert('请先完成计算再导出');
+    }
+});
+
+// ===================================================================
+//  图表下载
+// ===================================================================
+function exportWaterChart(chartId, fileName) {
+    const instance = EC(chartId);
+    if (!instance) return;
+    const link = document.createElement('a');
+    link.href = instance.getDataURL({ type: 'png', pixelRatio: 3, backgroundColor: '#fff' });
+    link.download = fileName + '.png';
+    link.click();
+}
+
+$('#exportTbmCharts').click(function() {
+    const cards = document.querySelectorAll('#tbmChartsContainer .visual-card');
+    let idx = 0;
+    function next() {
+        if (idx >= cards.length) { alert('所有图表已开始导出！'); return; }
+        const card = cards[idx];
+        const title = card.querySelector('h6').textContent.trim();
+        idx++;
+        html2canvas(card, { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = title + '.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+            setTimeout(next, 500);
+        });
+    }
+    next();
+});
+
+// ===================================================================
+//  突涌水分析
+// ===================================================================
+let waterTable = [];
+let waterMergeTable = [];
+
+// 从涌水量 sheet 读取数据（col2=平均涌水, col3=最大涌水）
+function getWaterVal(s, e) {
+    if (!wbData["涌水量"]) return { normal: 0, max: 0 };
+    for (const r of wbData["涌水量"]) {
+        const start = parseFloat(r[0]), end = parseFloat(r[1]);
+        if (!isNaN(start) && !isNaN(end) && start <= s && end >= e) {
+            return { normal: parseFloat(r[2]) || 0, max: parseFloat(r[3]) || 0 };
+        }
+    }
+    return { normal: 0, max: 0 };
+}
+
+function limitVal(val, threshold) { return val > threshold ? threshold : val; }
+
+function mergeSameData(list) {
+    if (!list.length) return [];
+    const res = [];
+    let cur = { ...list[0] };
+    for (let i = 1; i < list.length; i++) {
+        const item = list[i];
+        if (Math.abs(item.normal - cur.normal) < 0.01 &&
+            Math.abs(item.max - cur.max) < 0.01 &&
+            Math.abs(item.valZhangzi - cur.valZhangzi) < 0.01 &&
+            Math.abs(item.valChuzhi - cur.valChuzhi) < 0.01 &&
+            Math.abs(item.valLicheng - cur.valLicheng) < 0.01) {
+            cur.pkEnd = item.pk + 1;
+            cur.dirty = (cur.dirty + item.dirty) / 2;
+            cur.cleanChuzhi = (cur.cleanChuzhi + item.cleanChuzhi) / 2;
+            cur.cleanLicheng = (cur.cleanLicheng + item.cleanLicheng) / 2;
+            cur.clean = (cur.clean + item.clean) / 2;
+        } else {
+            res.push(cur);
+            cur = { ...item };
+            cur.pkEnd = item.pk + 1;
+        }
+    }
+    res.push(cur);
+    return res;
+}
+
+// 隧道选择变化时同步桩号
+$('#tunnelSelect').on('change', function() {
+    const start = $('#tunnelStart').val();
+    const end = $('#tunnelEnd').val();
+    if (start) $('#waterStartPk').val(start);
+    if (end) $('#waterEndPk').val(end);
+});
+
+$('#waterProcess').click(function() {
+    if (!wbData["涌水量"]) { alert('请先导入数据（需要"涌水量"工作表）'); return; }
+    const calcStart = parseFloat($('#waterStartPk').val());
+    const calcEnd = parseFloat($('#waterEndPk').val());
+    if (isNaN(calcStart) || isNaN(calcEnd) || calcStart >= calcEnd) { alert('请设置正确的桩号范围'); return; }
+    function pv(id, def) { const v = parseFloat($(id).val()); return isNaN(v) ? def : v; }
+    const Lz = pv('#zhangzi', 50);
+    const Lc = pv('#chuzhi', 100);
+    const Wz = pv('#w1', 10);
+    const Wc = pv('#w2', 20);
+    const Wl = pv('#w3', 30);
+
+    const baseRows = [];
+    for (let pk = calcStart; pk < calcEnd; pk++) {
+        const w = getWaterVal(pk, pk + 1);
+        baseRows.push({
+            pk, pkEnd: pk + 1,
+            normal: w.normal, max: w.max,
+            valZhangzi: limitVal(w.normal, Wz),
+            valChuzhi: limitVal(w.normal, Wc),
+            valLicheng: limitVal(w.normal, Wl),
+            dirty: 0, cleanChuzhi: 0, cleanLicheng: 0, clean: 0
+        });
+    }
+    if (!baseRows.length) { alert('桩号范围内无数据'); return; }
+
+    // 前缀和优化 O(n)，替代原来的 O(n²) filter+reduce
+    const n = baseRows.length;
+    const preZ = new Array(n + 1).fill(0);
+    const preC = new Array(n + 1).fill(0);
+    const preL = new Array(n + 1).fill(0);
+    for (let i = 0; i < n; i++) {
+        preZ[i + 1] = preZ[i] + baseRows[i].valZhangzi;
+        preC[i + 1] = preC[i] + baseRows[i].valChuzhi;
+        preL[i + 1] = preL[i] + baseRows[i].valLicheng;
+    }
+    for (let i = 0; i < n; i++) {
+        const row = baseRows[i];
+        const ds = Math.max(0, Math.ceil(i - Lz));
+        const cs = Math.max(0, Math.ceil(i - Lc));
+        const le = Math.max(0, Math.ceil(i - Lc));
+        row.dirty = (preZ[i] - preZ[ds]) / 24;
+        row.cleanChuzhi = (preC[i] - preC[cs]) / 24;
+        row.cleanLicheng = le > 0 ? preL[le] / 24 : 0;
+        row.clean = row.cleanChuzhi + row.cleanLicheng;
+    }
+
+    waterTable = baseRows.map(r => [r.pk, r.pkEnd, r.normal, r.max, r.valZhangzi, r.valChuzhi, r.valLicheng, r.cleanChuzhi, r.cleanLicheng, r.dirty, r.clean]);
+    waterMergeTable = mergeSameData(baseRows);
+
+    // 渲染结果表
+    let body = $('#waterResultBody').empty();
+    if (!waterMergeTable.length) {
+        body.append('<tr><td colspan="11" style="text-align:center">暂无数据</td></tr>');
+    } else {
+        waterMergeTable.forEach(r => {
+            body.append(`<tr><td>${r.pk.toFixed(0)}</td><td>${r.pkEnd.toFixed(0)}</td><td>${r.normal.toFixed(2)}</td><td>${r.max.toFixed(2)}</td><td>${r.valZhangzi.toFixed(2)}</td><td>${r.valChuzhi.toFixed(2)}</td><td>${r.valLicheng.toFixed(2)}</td><td>${r.cleanChuzhi.toFixed(2)}</td><td>${r.cleanLicheng.toFixed(2)}</td><td>${r.dirty.toFixed(2)}</td><td>${r.clean.toFixed(2)}</td></tr>`);
+        });
+    }
+    $('#waterRowCount').text(`共 ${waterMergeTable.length} 条合并数据`);
+
+    // 统计值
+    const normals = baseRows.map(r => r.normal), maxs = baseRows.map(r => r.max);
+    const dirtys = baseRows.map(r => r.dirty), cleans = baseRows.map(r => r.clean);
+    $('#maxNormalVal').text(Math.max(...normals).toFixed(2));
+    $('#maxMaxVal').text(Math.max(...maxs).toFixed(2));
+    $('#maxDirtyVal').text(Math.max(...dirtys).toFixed(2));
+    $('#maxCleanVal').text(Math.max(...cleans).toFixed(2));
+
+    // 沿程涌水量图
+    const pkList = baseRows.map(r => r.pk);
+    const normalPts = baseRows.map(r => [r.pk, r.normal]);
+    const maxPts = baseRows.map(r => [r.pk, r.max]);
+    EC('waterFlowChart').setOption({
+        title: { text: '隧洞涌水量断面图', left: 'center', textStyle: { fontSize: 15, fontWeight: 'bold' } },
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['正常涌水','最大涌水'], bottom: 0 },
+        grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+        xAxis: { type: 'value', name: '桩号(m)', min: calcStart, max: calcEnd },
+        yAxis: { type: 'value', name: '涌水量(m³/d·m)' },
+        series: [
+            { name: '正常涌水', type: 'line', data: normalPts, lineStyle: { width: 2, color: '#5470c6' }, showSymbol: false },
+            { name: '最大涌水', type: 'line', data: maxPts, lineStyle: { width: 2, color: '#ee6666' }, showSymbol: false }
+        ]
+    });
+
+    // 清水/污水图
+    const dirtyPts = baseRows.map(r => [r.pk, r.dirty]);
+    const cleanPts = baseRows.map(r => [r.pk, r.clean]);
+    EC('waterTypeChart').setOption({
+        title: { text: '清水量/污水量分布', left: 'center', textStyle: { fontSize: 15, fontWeight: 'bold' } },
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['污水量','清水量'], bottom: 0 },
+        grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+        xAxis: { type: 'value', name: '桩号(m)', min: calcStart, max: calcEnd },
+        yAxis: { type: 'value', name: '水量(m³/h)' },
+        series: [
+            { name: '污水量', type: 'line', data: dirtyPts, lineStyle: { width: 2, color: '#f59e0b' }, showSymbol: false },
+            { name: '清水量', type: 'line', data: cleanPts, lineStyle: { width: 2, color: '#3b82f6' }, showSymbol: false }
+        ]
+    });
+
+    // 正常涌水分布
+    const thres = [Wz, Wc, Wl].filter(x => !isNaN(x)).sort((a, b) => a - b);
+    let pre = 0, nCats = [], nVals = [];
+    thres.forEach(b => {
+        const cnt = normals.filter(v => v > pre && v <= b).length;
+        nCats.push(`${pre.toFixed(1)}~${b.toFixed(1)}`); nVals.push(cnt); pre = b;
+    });
+    const lastCnt = normals.filter(v => v > pre).length;
+    nCats.push(`>${pre.toFixed(1)}`); nVals.push(lastCnt);
+    const nTotal = nVals.reduce((a, b) => a + b, 0);
+    const nPieData = nCats.map((n, i) => ({ name: n, value: nVals[i], itemStyle: { color: ['#3b82f6','#10b981','#f59e0b','#ef4444'][i % 4] } }));
+    EC('normalWaterChart').setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c}m ({d}%)' },
+        legend: { orient: 'vertical', left: 'left', textStyle: { fontSize: 11 } },
+        series: [{ type: 'pie', radius: ['45%', '70%'], center: ['50%', '55%'], data: nPieData, label: { show: true, formatter: '{d}%', fontSize: 11 } }]
+    });
+    let nBody = $('#normalWaterBody').empty();
+    nPieData.forEach(item => {
+        const pct = nTotal > 0 ? ((item.value / nTotal) * 100).toFixed(2) : '0';
+        nBody.append(`<tr><td>${item.name}</td><td>${item.value.toFixed(2)}</td><td>${pct}%</td></tr>`);
+    });
+
+    // 最大涌水分布
+    pre = 0; const mCats = [], mVals = [];
+    thres.forEach(b => {
+        const cnt = maxs.filter(v => v > pre && v <= b).length;
+        mCats.push(`${pre.toFixed(1)}~${b.toFixed(1)}`); mVals.push(cnt); pre = b;
+    });
+    const mLast = maxs.filter(v => v > pre).length;
+    mCats.push(`>${pre.toFixed(1)}`); mVals.push(mLast);
+    const mTotal = mVals.reduce((a, b) => a + b, 0);
+    const mPieData = mCats.map((n, i) => ({ name: n, value: mVals[i], itemStyle: { color: ['#f97316','#eab308','#ec489a','#8b5cf6'][i % 4] } }));
+    EC('maxWaterChart').setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c}m ({d}%)' },
+        legend: { orient: 'vertical', left: 'left', textStyle: { fontSize: 11 } },
+        series: [{ type: 'pie', radius: ['45%', '70%'], center: ['50%', '55%'], data: mPieData, label: { show: true, formatter: '{d}%', fontSize: 11 } }]
+    });
+    let mBody = $('#maxWaterBody').empty();
+    mPieData.forEach(item => {
+        const pct = mTotal > 0 ? ((item.value / mTotal) * 100).toFixed(2) : '0';
+        mBody.append(`<tr><td>${item.name}</td><td>${item.value.toFixed(2)}</td><td>${pct}%</td></tr>`);
+    });
+
+    alert('涌水计算分析完成！');
+});
+
+// 导出 Excel
+$('#exportWater').click(function() {
+    if (!waterMergeTable.length) { alert('请先点击"涌水计算分析"'); return; }
+    const headers = ["起始桩号","终点桩号","正常涌水(m³/d·m)","最大涌水(m³/d·m)","掌子面涌水","初支涌水","衬砌涌水","初支清水量(m³/h)","衬砌清水量(m³/h)","污水量(m³/h)","总清水量(m³/h)"];
+    const data = [headers];
+    waterMergeTable.forEach(r => {
+        data.push([r.pk.toFixed(0), r.pkEnd.toFixed(0), r.normal.toFixed(2), r.max.toFixed(2), r.valZhangzi.toFixed(2), r.valChuzhi.toFixed(2), r.valLicheng.toFixed(2), r.cleanChuzhi.toFixed(2), r.cleanLicheng.toFixed(2), r.dirty.toFixed(2), r.clean.toFixed(2)]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "突涌水分析结果");
+    XLSX.writeFile(wb, "隧洞突涌水分析结果.xlsx");
+});
+
+// ===================================================================
+//  初始化
+// ===================================================================
+$(function() { loadConfig(); });
+</script>
+</body>
+</html>
