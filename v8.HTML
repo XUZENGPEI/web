@@ -639,7 +639,7 @@
     <!-- Header -->
     <div class="app-header">
         <h1><i class="bi bi-geo-alt-fill me-2"></i>引大济岷工程 · TBM 选型分析系统</h1>
-        <span class="badge"><i class="bi bi-info-circle me-1"></i>隧道工程智能分析平台</span>
+        <span class="badge"><i class="bi bi-info-circle me-1"></i>智能分析平台</span>
     </div>
 
     <!-- Tabs -->
@@ -665,6 +665,7 @@
                     <button id="upload" class="btn btn-primary"><i class="bi bi-file-earmark-excel me-1"></i>选择 Excel 文件导入</button>
                     <span id="importTip" class="text-muted-custom"><i class="bi bi-inbox me-1"></i>未导入</span>
                 </div>
+                <div class="mb-3"><a href="#" id="downloadTemplate" style="font-size:12px;color:#aaa;text-decoration:none;"><i class="bi bi-download me-1"></i>参照表格样式下载（3个模板文件）</a></div>
 
                 <div class="row g-4 mt-2">
                     <div class="col-md-12">
@@ -1367,6 +1368,52 @@ function getTunnelFloorElevation(x) {
 //  文件导入
 // ===================================================================
 $('#upload').click(() => $('#fileInput').click());
+document.getElementById('downloadTemplate').addEventListener('click', function(e) {
+    e.preventDefault();
+    try {
+        function makeBook(sheets) {
+            var wb = XLSX.utils.book_new();
+            sheets.forEach(function(item) {
+                var ws = XLSX.utils.aoa_to_sheet(item.data);
+                XLSX.utils.book_append_sheet(wb, ws, item.name);
+            });
+            return wb;
+        }
+
+        // 1. 地质数据模板（12个工作表，通过【选择 Excel 文件导入】导入）
+        XLSX.writeFile(makeBook([
+            {name:"底板高程", data:[["桩号","底板高程"],[0,100],[1,99.5]]},
+            {name:"隧洞桩号", data:[["隧洞名称","起始桩号","终点桩号"],["主洞",0,100]]},
+            {name:"断面数据", data:[["桩号","高程"],[0,120],[1,119.8],[2,119.5]]},
+            {name:"施工分段", data:[["起始桩号","终点桩号","分段名称"],[0,50,"试验段"],[50,100,"标准段"]]},
+            {name:"围岩分类", data:[["起始桩号","终点桩号","围岩分类","岩性","岩体质量","岩体强度","完整程度","磨蚀性"],[0,20,"II类50%,III类50%","花岗岩","80","120","0.8","12"],[20,50,"III类","砂岩","60","80","0.6","15"]]},
+            {name:"突涌水", data:[["起始桩号","终点桩号","涌水等级","THR"],[0,30,"轻微",15],[30,60,"中等",10],[60,100,"严重",5]]},
+            {name:"岩爆", data:[["起始桩号","终点桩号","岩爆等级"],[0,40,"无"],[40,70,"轻微"],[70,100,"中等"]]},
+            {name:"软岩变形", data:[["起始桩号","终点桩号","软岩变形等级","强度应力比"],[0,50,"无",2.5],[50,100,"轻微",1.5]]},
+            {name:"有害气体", data:[["起始桩号","终点桩号","有害气体等级"],[0,100,"无"]]},
+            {name:"高地温", data:[["起始桩号","终点桩号","高地温等级"],[0,100,"无"]]},
+            {name:"其他", data:[["起始桩号","终点桩号","其他"],[0,100,"无"]]},
+            {name:"涌水量", data:[["起始桩号","终点桩号","平均涌水量","最大涌水量"],[0,30,15,25],[30,60,8,12],[60,100,20,35]]}
+        ]), "地质数据模板.xlsx");
+
+        // 2. TBM适宜性曲线模板（6个工作表，通过【适宜性曲线导入】导入）
+        XLSX.writeFile(makeBook([
+            {name:"岩体质量", data:[["岩体质量值","敞开式适宜性","双护盾适宜性","单护盾适宜性"],[20,0.3,0.9,0.8],[40,0.5,0.8,0.7],[60,0.7,0.6,0.5],[80,0.9,0.4,0.3]]},
+            {name:"完整程度", data:[["完整程度","敞开式适宜性","双护盾适宜性","单护盾适宜性"],["完整",0.3,0.9,0.8],["较完整",0.5,0.7,0.6],["较破碎",0.7,0.5,0.4],["破碎",0.9,0.3,0.2]]},
+            {name:"磨蚀性", data:[["磨蚀性值","敞开式适宜性","双护盾适宜性","单护盾适宜性"],[10,0.8,0.5,0.4],[12,0.7,0.6,0.5],[15,0.5,0.7,0.6],[18,0.3,0.8,0.7]]},
+            {name:"岩爆", data:[["岩爆等级","敞开式适宜性","双护盾适宜性","单护盾适宜性"],["无",0.9,0.7,0.6],["轻微",0.7,0.8,0.7],["中等",0.5,0.9,0.8],["强烈",0.3,0.6,0.7]]},
+            {name:"强度应力比", data:[["强度应力比","敞开式适宜性","双护盾适宜性","单护盾适宜性"],[1,0.3,0.9,0.8],[2,0.5,0.8,0.7],[3,0.7,0.6,0.5],[4,0.9,0.4,0.3]]},
+            {name:"THR", data:[["THR值","敞开式适宜性","双护盾适宜性","单护盾适宜性"],[5,0.3,0.9,0.8],[10,0.5,0.7,0.6],[15,0.7,0.5,0.4],[20,0.9,0.3,0.2]]}
+        ]), "TBM适宜性曲线模板.xlsx");
+
+        // 3. TBM进度数据模板（通过【进度数据导入】导入）
+        XLSX.writeFile(makeBook([
+            {name:"进度数据", data:[["","II类","III类","IV类","V类","断层"],["敞开式",300,250,200,150,100],["敞开式折减",270,225,180,135,90],["双护盾",280,230,180,130,80],["双护盾折减",252,207,162,117,72],["单护盾",260,210,160,110,60],["单护盾折减",234,189,144,99,54]]}
+        ]), "TBM进度数据模板.xlsx");
+    } catch (err) {
+        alert('下载模板失败：' + err.message);
+    }
+});
 $('#fileInput').change(function(e) {
     if (!e.target.files || !e.target.files.length) return;
     const reader = new FileReader();
