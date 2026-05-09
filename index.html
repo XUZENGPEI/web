@@ -179,30 +179,24 @@
         .status-right {
             text-align: right;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .welcome-txt {
-            font-size: 15px;
-            color: var(--text-secondary);
-            letter-spacing: 2px;
-        }
-        .work-summary {
-            font-size: 13px;
-            color: var(--text-muted);
-            display: flex;
             align-items: center;
             gap: 14px;
-            justify-content: flex-end;
         }
-        .work-summary .stat-item {
+        .welcome-txt {
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+        .status-info {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
         }
-        .stat-done { color: var(--success); }
-        .stat-pending { color: var(--warning); }
-        .stat-total { color: var(--text-secondary); }
+        .status-info i { font-size: 15px; }
+        .status-info .loc-icon { color: var(--accent); }
+        .status-info .weather-icon { color: var(--warning); }
 
         /* ===== 搜索栏 ===== */
         .search-container { margin-bottom: 18px; }
@@ -771,6 +765,290 @@
         .toast-warning i { color: var(--warning); }
         .toast-info i { color: var(--accent); }
 
+        /* ===== 任务概览卡片 ===== */
+        .task-overview {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin: 18px 0;
+        }
+        .overview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            backdrop-filter: blur(12px);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .overview-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 25px rgba(0, 100, 200, 0.15);
+            transform: translateY(-2px);
+        }
+        .overview-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            color: #fff;
+        }
+        .overview-icon.assigned {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+        }
+        .overview-icon.completed {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            box-shadow: 0 0 15px rgba(22, 163, 74, 0.3);
+        }
+        .overview-icon.rate {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        .overview-info { flex: 1; }
+        .overview-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .overview-number {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a0c8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+        .overview-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ===== 任务柱状图 ===== */
+        .chart-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            backdrop-filter: blur(12px);
+            margin: 18px 0 24px;
+            transition: var(--transition);
+        }
+        .chart-section:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 25px rgba(0, 100, 200, 0.15);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(37, 75, 138, 0.25);
+        }
+        .chart-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-header h3 i { color: var(--accent); }
+        .chart-nav { display: flex; gap: 8px; }
+        .chart-nav-btn {
+            padding: 4px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+        .chart-nav-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--border-glow);
+        }
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .chart-legend-swatch {
+            width: 12px; height: 12px;
+            border-radius: 2px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .chart-legend-swatch.added { background: linear-gradient(to top, #0088dd, #44bbff); }
+        .chart-legend-swatch.done { background: linear-gradient(to top, #16a34a, #44dd77); }
+        .chart-wrapper {
+            overflow-x: auto;
+            overflow-y: visible;
+            padding-bottom: 4px;
+        }
+        .chart-wrapper::-webkit-scrollbar { height: 4px; }
+        .chart-wrapper::-webkit-scrollbar-track { background: transparent; }
+        .chart-wrapper::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            min-height: 200px;
+            width: 100%;
+        }
+        .chart-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 14px;
+            max-width: 40px;
+        }
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            flex: 1;
+            width: 100%;
+            justify-content: center;
+        }
+        .chart-bar {
+            width: 100%;
+            max-width: 14px;
+            border-radius: 2px 2px 0 0;
+            min-height: 2px;
+            transition: height 0.4s ease;
+        }
+        .chart-bar.added { background: linear-gradient(to top, #0088dd, #44bbff); }
+        .chart-bar.done { background: linear-gradient(to top, #16a34a, #44dd77); }
+        .chart-x-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        /* ===== 待办轮播 ===== */
+        .marquee-carousel {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            margin-left: 28px;
+        }
+        .marquee-slide {
+            text-align: left;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            width: 100%;
+        }
+        .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            flex-wrap: wrap;
+        }
+        .marquee-item i { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
+        .mi-name { font-weight: 600; color: var(--text-primary); }
+        .mi-sep { color: rgba(255,255,255,0.08); font-size: 11px; }
+        .mi-label { color: var(--text-muted); font-size: 12px; }
+        .mi-value { color: var(--text-secondary); font-size: 12px; font-weight: 500; }
+        .marquee-item .fa-exclamation-triangle {
+            color: var(--danger);
+            filter: drop-shadow(0 0 4px rgba(221,68,85,0.5));
+            animation: warnPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes warnPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        /* ===== 图标上传 ===== */
+        .icon-upload {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 4px;
+        }
+        .icon-preview {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            background: rgba(20, 40, 80, 0.5);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-muted);
+            overflow: hidden;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+        }
+        .icon-upload-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .icon-upload-btn {
+            padding: 6px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .icon-upload-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--border-glow);
+        }
+        .icon-clear-btn {
+            padding: 4px 10px;
+            border: 1px solid rgba(221, 68, 85, 0.3);
+            border-radius: var(--radius-sm);
+            background: rgba(221, 68, 85, 0.08);
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .icon-clear-btn:hover { background: rgba(221, 68, 85, 0.15); }
+        .icon-upload-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
         /* ===== 响应式 ===== */
         @media (max-width: 1100px) {
             .main-grid {
@@ -780,7 +1058,7 @@
         @media (max-width: 768px) {
             .status-bar { flex-direction: column; text-align: center; }
             .status-right { text-align: center; }
-            .work-summary { justify-content: center; }
+            .status-info { justify-content: center; }
             #current-time { font-size: 28px; }
             .top-header .container { justify-content: center; text-align: center; }
             .nav-header { flex-direction: column; align-items: stretch; }
@@ -790,6 +1068,7 @@
             .form-row { grid-template-columns: 1fr; }
             .header-badge { display: none; }
             .nav-container { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .task-overview { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 480px) {
             .container { padding: 0 12px; }
@@ -797,6 +1076,7 @@
             .search-btn { width: 100%; justify-content: center; }
             .task-section, .nav-section { padding: 14px; }
             .nav-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .task-overview { grid-template-columns: 1fr; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -825,12 +1105,55 @@
             <span id="current-time">00:00:00</span>
             <span id="current-date">2025年01月01日 星期三</span>
         </div>
+        <div class="marquee-carousel" id="marqueeCarousel">
+            <div class="marquee-slide" id="marqueeSlide"><span class="marquee-item"><i class="fas fa-spinner fa-pulse"></i></span></div>
+        </div>
         <div class="status-right">
             <div class="welcome-txt" id="welcomeMsg">WELCOME TO SWHI</div>
-            <div class="work-summary">
-                <span class="stat-item"><i class="fas fa-check-circle stat-done"></i> 已完成: <span id="statDone">0</span></span>
-                <span class="stat-item"><i class="fas fa-clock stat-pending"></i> 待办: <span id="statPending">0</span></span>
-                <span class="stat-item"><i class="fas fa-list stat-total"></i> 总计: <span id="statTotal">0</span></span>
+            <div class="status-info">
+                <span><i class="fas fa-map-pin loc-icon"></i> <span id="currentLocation">成都</span></span>
+                <span><i class="fas fa-cloud-sun weather-icon"></i> <span id="currentWeather">22°C 晴</span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 任务概览 ===== -->
+<div class="container">
+    <div class="task-overview">
+        <div class="overview-card">
+            <div class="overview-icon assigned"><i class="fas fa-list"></i></div>
+            <div class="overview-info">
+                <div class="overview-label">总任务数</div>
+                <div class="overview-number" id="overviewTotalTasks">0</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-icon completed"><i class="fas fa-check-double"></i></div>
+            <div class="overview-info">
+                <div class="overview-label">总完成数</div>
+                <div class="overview-number" id="overviewTotalDone">0</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-icon" style="background:linear-gradient(135deg,#0d9488,#14b8a6);box-shadow:0 0 15px rgba(13,148,136,0.3)"><i class="fas fa-calendar-plus"></i></div>
+            <div class="overview-info">
+                <div class="overview-label">本月新增</div>
+                <div class="overview-number" id="overviewMonthAdded">0</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-icon" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);box-shadow:0 0 15px rgba(124,58,237,0.3)"><i class="fas fa-calendar-check"></i></div>
+            <div class="overview-info">
+                <div class="overview-label">本月完成</div>
+                <div class="overview-number" id="overviewMonthDone">0</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-icon rate"><i class="fas fa-chart-line"></i></div>
+            <div class="overview-info">
+                <div class="overview-label">本月完成率</div>
+                <div class="overview-number" id="overviewMonthRate">0%</div>
             </div>
         </div>
     </div>
@@ -842,7 +1165,7 @@
         <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" class="search-input" id="baidu-input" placeholder="搜索你想要的内容..." onkeydown="if(event.key==='Enter')baiduSearch()">
-            <button class="search-btn" onclick="baiduSearch()"><i class="fas fa-search"></i> 百度搜索</button>
+            <button class="search-btn" onclick="baiduSearch()">百度搜索</button>
         </div>
     </div>
 </div>
@@ -893,6 +1216,26 @@
     </div>
 </div>
 
+<!-- ===== 任务柱状图 ===== -->
+<div class="container">
+    <div class="chart-section">
+        <div class="chart-header">
+            <h3><i class="fas fa-chart-bar"></i> <span id="chartTitle">2025年5月</span> 任务统计</h3>
+            <div class="chart-nav">
+                <button class="chart-nav-btn" onclick="chartNav(-1)"><i class="fas fa-chevron-left"></i> 上月</button>
+                <button class="chart-nav-btn" onclick="chartNav(1)">下月 <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <span class="chart-legend-item"><span class="chart-legend-swatch added"></span> 新增任务</span>
+            <span class="chart-legend-item"><span class="chart-legend-swatch done"></span> 完成任务</span>
+        </div>
+        <div class="chart-wrapper">
+            <div class="chart-container" id="chartContainer"></div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== 回到顶部 ===== -->
 <button class="back-top" id="backTop" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
 
@@ -921,6 +1264,18 @@
                 <select class="form-select" id="card-category"></select>
             </div>
         </div>
+        <div class="form-group">
+            <label class="form-label">自定义图标</label>
+            <div class="icon-upload">
+                <div class="icon-preview" id="iconPreview"><i class="fas fa-image"></i></div>
+                <div class="icon-upload-actions">
+                    <button type="button" class="icon-upload-btn" onclick="document.getElementById('iconFileInput').click()"><i class="fas fa-upload"></i> 上传图片</button>
+                    <button type="button" class="icon-clear-btn" onclick="clearCustomIcon()"><i class="fas fa-times"></i> 清除</button>
+                    <span class="icon-upload-hint">支持 PNG / JPG / GIF / SVG，最大 2MB</span>
+                </div>
+                <input type="file" id="iconFileInput" accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp" style="display:none" onchange="handleIconUpload(event)">
+            </div>
+        </div>
         <div class="modal-buttons">
             <button class="modal-btn btn-cancel" onclick="closeModal()">取消</button>
             <button class="modal-btn btn-save" onclick="saveCard()">保存</button>
@@ -928,7 +1283,6 @@
     </div>
 </div>
 
-<!-- ===== 添加任务弹窗 ===== -->
 <div class="modal" id="task-modal">
     <div class="modal-content">
         <div class="modal-title"><i class="fas fa-tasks"></i> 添加任务</div>
@@ -938,11 +1292,11 @@
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label">优先级</label>
-                <select class="form-select" id="newTaskPriority">
-                    <option value="medium">中优先级</option>
-                    <option value="high">高优先级</option>
-                    <option value="low">低优先级</option>
+                <label class="form-label">项目类型</label>
+                <select class="form-select" id="newTaskProjectType">
+                    <option value="general">一般项目</option>
+                    <option value="medium">中等项目</option>
+                    <option value="major">重大项目</option>
                 </select>
             </div>
             <div class="form-group">
@@ -982,6 +1336,11 @@ let currentCategory = '全部';
 let taskFilter = 'all';
 let sortableInstance = null;
 let toastTimer = null;
+let chartYear = new Date().getFullYear();
+let chartMonth = new Date().getMonth();
+let marqueeInterval = null;
+let marqueeIndex = 0;
+let marqueeItems = [];
 
 // DOM 引用
 const modal = document.getElementById('edit-modal');
@@ -1073,8 +1432,9 @@ function renderHomeTask() {
         const div = document.createElement('div');
         div.className = 'task-item' + (item.done ? ' done' : '');
 
+        const compPriority = computePriority(item);
         const priorityLabel = { high: '高', medium: '中', low: '低' };
-        const badgeClass = 'badge-' + (item.priority || 'medium');
+        const badgeClass = 'badge-' + compPriority;
 
         let dueHtml = '';
         if (item.dueDate) {
@@ -1095,7 +1455,7 @@ function renderHomeTask() {
         div.innerHTML = `
             <input type="checkbox" class="task-check" ${item.done ? 'checked' : ''} onchange="toggleHomeTask(${idx})">
             <span class="task-content">${escapeHtml(item.content)}</span>
-            <span class="task-badge ${badgeClass}">${priorityLabel[item.priority] || '中'}</span>
+            <span class="task-badge ${badgeClass}">${priorityLabel[compPriority] || '中'}</span>
             ${dueHtml} ${createdHtml}
             <i class="fas fa-trash-alt task-del" onclick="delHomeTask(${idx})" title="删除"></i>
         `;
@@ -1122,11 +1482,6 @@ function setTaskFilter(filter) {
 function updateStats() {
     const total = taskData.length;
     const done = taskData.filter(t => t.done).length;
-    const pending = total - done;
-
-    document.getElementById('statDone').textContent = done;
-    document.getElementById('statPending').textContent = pending;
-    document.getElementById('statTotal').textContent = total;
 
     // 进度条
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -1140,9 +1495,178 @@ function updateStats() {
     else fill.classList.add('low');
 }
 
+function renderTaskOverview() {
+    const total = taskData.length;
+    const done = taskData.filter(t => t.done).length;
+
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    const monthStart = new Date(y, m, 1).getTime();
+    const monthEnd = new Date(y, m + 1, 0, 23, 59, 59, 999).getTime();
+
+    const monthAdded = taskData.filter(t => t.createdAt && t.createdAt >= monthStart && t.createdAt <= monthEnd).length;
+    const monthDone = taskData.filter(t => t.done && t.completedAt && t.completedAt >= monthStart && t.completedAt <= monthEnd).length;
+    const monthRate = monthAdded > 0 ? Math.round((monthDone / monthAdded) * 100) : 0;
+
+    document.getElementById('overviewTotalTasks').textContent = total;
+    document.getElementById('overviewTotalDone').textContent = done;
+    document.getElementById('overviewMonthAdded').textContent = monthAdded;
+    document.getElementById('overviewMonthDone').textContent = monthDone;
+    document.getElementById('overviewMonthRate').textContent = monthRate + '%';
+}
+
+function computePriority(task) {
+    if (!task.dueDate) return 'low';
+    const now = new Date();
+    const due = new Date(task.dueDate + 'T23:59:59');
+    const diffDays = (due - now) / 86400000;
+    const type = task.projectType || 'general';
+
+    if (type === 'general') {
+        if (diffDays < 1) return 'high';
+        if (diffDays < 3) return 'medium';
+        return 'low';
+    }
+    if (type === 'medium') {
+        if (diffDays < 3) return 'high';
+        if (diffDays < 7) return 'medium';
+        return 'low';
+    }
+    if (type === 'major') {
+        if (diffDays < 10) return 'high';
+        if (diffDays < 20) return 'medium';
+        return 'low';
+    }
+    return 'low';
+}
+
+function renderTaskChart() {
+    const year = chartYear;
+    const month = chartMonth;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const months = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+    document.getElementById('chartTitle').textContent = year + '年' + months[month] + '月';
+
+    const dailyData = [];
+    let maxCount = 0;
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = new Date(year, month, day).toDateString();
+        const added = taskData.filter(t => t.createdAt && new Date(t.createdAt).toDateString() === dateStr).length;
+        const done = taskData.filter(t => t.done && t.completedAt && new Date(t.completedAt).toDateString() === dateStr).length;
+        maxCount = Math.max(maxCount, added, done);
+        dailyData.push({ day, added, done });
+    }
+
+    const container = document.getElementById('chartContainer');
+    container.innerHTML = '';
+
+    const maxHeight = 160;
+    const effectiveMax = maxCount || 1;
+
+    dailyData.forEach(d => {
+        const col = document.createElement('div');
+        col.className = 'chart-col';
+
+        const barsDiv = document.createElement('div');
+        barsDiv.className = 'chart-bars';
+
+        const addBar = document.createElement('div');
+        addBar.className = 'chart-bar added';
+        addBar.style.height = Math.max((d.added / effectiveMax) * maxHeight, 2) + 'px';
+        addBar.title = d.day + '日 新增: ' + d.added;
+
+        const doneBar = document.createElement('div');
+        doneBar.className = 'chart-bar done';
+        doneBar.style.height = Math.max((d.done / effectiveMax) * maxHeight, 2) + 'px';
+        doneBar.title = d.day + '日 完成: ' + d.done;
+
+        barsDiv.appendChild(addBar);
+        barsDiv.appendChild(doneBar);
+
+        const label = document.createElement('div');
+        label.className = 'chart-x-label';
+        label.textContent = d.day;
+
+        col.appendChild(barsDiv);
+        col.appendChild(label);
+        container.appendChild(col);
+    });
+}
+
+function chartNav(offset) {
+    chartMonth += offset;
+    if (chartMonth < 0) { chartMonth = 11; chartYear--; }
+    if (chartMonth > 11) { chartMonth = 0; chartYear++; }
+    renderTaskChart();
+    renderMarquee();
+}
+
+function renderMarquee() {
+    var slide = document.getElementById('marqueeSlide');
+    if (!slide) return;
+
+    if (marqueeInterval) { clearInterval(marqueeInterval); marqueeInterval = null; }
+    marqueeIndex = 0;
+
+    // Only show high-priority items
+    var urgent = taskData.filter(function(t) { return !t.done && computePriority(t) === 'high'; });
+
+    if (urgent.length === 0) {
+        slide.innerHTML = '<span class="marquee-item"><i class="fas fa-check-circle" style="color:var(--success)"></i><span class="mi-name">暂无紧急任务</span></span>';
+        return;
+    }
+
+    marqueeItems = urgent.map(function(t) {
+        var cd = t.createdAt ? new Date(t.createdAt) : null;
+        var created = cd ? (cd.getMonth()+1).toString().padStart(2,'0')+'-'+cd.getDate().toString().padStart(2,'0') : '--';
+        var due = t.dueDate || '无';
+        var execDays = t.createdAt ? Math.floor((Date.now() - t.createdAt) / 86400000) : 0;
+        var typeLabel = { general: '一般', medium: '中等', major: '重大' };
+
+        return '<span class="marquee-item">' +
+            '<i class="fas fa-exclamation-triangle"></i>' +
+            '<span class="mi-name">' + escapeHtml(t.content) + '</span>' +
+            '<span class="mi-sep">|</span>' +
+            '<span class="mi-label">' + (typeLabel[t.projectType] || '一般') + '</span>' +
+            '<span class="mi-sep">|</span>' +
+            '<span class="mi-label">创建:</span><span class="mi-value">' + created + '</span>' +
+            '<span class="mi-sep">|</span>' +
+            '<span class="mi-label">截止:</span><span class="mi-value">' + due + '</span>' +
+            '<span class="mi-sep">|</span>' +
+            '<span class="mi-label">已执行</span><span class="mi-value">' + execDays + '天</span>' +
+            '</span>';
+    });
+
+    // Initial display without animation
+    marqueeIndex = 0;
+    slide.innerHTML = marqueeItems[0];
+
+    marqueeInterval = setInterval(function() {
+        var next = (marqueeIndex + 1) % marqueeItems.length;
+        showMarqueeItem(next);
+    }, 5000);
+}
+
+function showMarqueeItem(index) {
+    var slide = document.getElementById('marqueeSlide');
+    if (!slide) return;
+    if (index < 0 || index >= marqueeItems.length) return;
+
+    slide.style.opacity = '0';
+    slide.style.transform = 'translateY(-4px)';
+
+    setTimeout(function() {
+        marqueeIndex = index;
+        slide.innerHTML = marqueeItems[index];
+        slide.style.opacity = '1';
+        slide.style.transform = 'translateY(0)';
+    }, 280);
+}
+
 function openAddTaskModal() {
     document.getElementById('newTaskContent').value = '';
-    document.getElementById('newTaskPriority').value = 'medium';
+    document.getElementById('newTaskProjectType').value = 'general';
     document.getElementById('newTaskDue').value = '';
     taskModal.classList.add('active');
     setTimeout(() => document.getElementById('newTaskContent').focus(), 150);
@@ -1156,20 +1680,31 @@ function saveNewTask() {
     taskData.push({
         content: val,
         done: false,
-        priority: document.getElementById('newTaskPriority').value,
+        projectType: document.getElementById('newTaskProjectType').value,
         dueDate: document.getElementById('newTaskDue').value || '',
         createdAt: Date.now()
     });
     localStorage.setItem('taskData', JSON.stringify(taskData));
     renderHomeTask();
+    renderTaskOverview();
+    renderTaskChart();
+    renderMarquee();
     closeTaskModal();
     showToast('任务已添加', 'success');
 }
 
 function toggleHomeTask(idx) {
     taskData[idx].done = !taskData[idx].done;
+    if (taskData[idx].done) {
+        taskData[idx].completedAt = taskData[idx].completedAt || Date.now();
+    } else {
+        delete taskData[idx].completedAt;
+    }
     localStorage.setItem('taskData', JSON.stringify(taskData));
     renderHomeTask();
+    renderTaskOverview();
+    renderTaskChart();
+    renderMarquee();
     if (taskData[idx].done) showToast('任务已完成 👍', 'success');
 }
 
@@ -1177,6 +1712,9 @@ function delHomeTask(idx) {
     taskData.splice(idx, 1);
     localStorage.setItem('taskData', JSON.stringify(taskData));
     renderHomeTask();
+    renderTaskOverview();
+    renderTaskChart();
+    renderMarquee();
     showToast('任务已删除', 'info');
 }
 
@@ -1244,6 +1782,13 @@ function renderCards() {
 function loadFavicon(url, index, color) {
     const iconDiv = document.getElementById('icon-' + index);
     if (!iconDiv) return;
+    // Use custom icon if uploaded
+    const data = navData[index];
+    if (data && data.iconData) {
+        iconDiv.style.background = 'url(' + data.iconData + ') center/cover';
+        iconDiv.textContent = '';
+        return;
+    }
     try {
         const domain = new URL(url).origin;
         const img = new Image();
@@ -1266,6 +1811,35 @@ function loadFavicon(url, index, color) {
         iconDiv.style.background = color || '#0088dd';
         iconDiv.textContent = navData[index] ? navData[index].name.charAt(0) : '★';
     }
+}
+
+// ============================================================
+//  图标上传
+// ============================================================
+function handleIconUpload(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('图片大小不能超过 2MB', 'warning');
+        event.target.value = '';
+        return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var prev = document.getElementById('iconPreview');
+        prev.style.background = 'url(' + e.target.result + ') center/cover';
+        prev.textContent = '';
+        prev.dataset.iconData = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+}
+
+function clearCustomIcon() {
+    var prev = document.getElementById('iconPreview');
+    prev.style.background = '';
+    prev.innerHTML = '<i class="fas fa-image"></i>';
+    delete prev.dataset.iconData;
 }
 
 // ============================================================
@@ -1303,6 +1877,10 @@ function addNewCard() {
     document.getElementById('card-name').value = '';
     document.getElementById('card-url').value = '';
     document.getElementById('card-color').value = '#0088dd';
+    var iconPrev = document.getElementById('iconPreview');
+    iconPrev.style.background = '';
+    iconPrev.innerHTML = '<i class="fas fa-image"></i>';
+    delete iconPrev.dataset.iconData;
     populateCategorySelect();
     document.getElementById('card-category').value = currentCategory !== '全部' ? currentCategory : '常用';
     modal.classList.add('active');
@@ -1317,6 +1895,16 @@ function openEditModal(index) {
     document.getElementById('card-name').value = item.name;
     document.getElementById('card-url').value = item.url;
     document.getElementById('card-color').value = item.color || '#0088dd';
+    var iconPrev = document.getElementById('iconPreview');
+    if (item.iconData) {
+        iconPrev.style.background = 'url(' + item.iconData + ') center/cover';
+        iconPrev.textContent = '';
+        iconPrev.dataset.iconData = item.iconData;
+    } else {
+        iconPrev.style.background = '';
+        iconPrev.innerHTML = '<i class="fas fa-image"></i>';
+        delete iconPrev.dataset.iconData;
+    }
     populateCategorySelect();
     document.getElementById('card-category').value = item.category || '常用';
     modal.classList.add('active');
@@ -1341,11 +1929,15 @@ function saveCard() {
     const url = document.getElementById('card-url').value.trim();
     const color = document.getElementById('card-color').value.trim();
     const category = document.getElementById('card-category').value;
+    const iconData = document.getElementById('iconPreview').dataset.iconData || '';
 
     if (!name) { showToast('请输入网站名称！', 'warning'); return; }
     if (!url) { showToast('请输入网站网址！', 'warning'); return; }
 
     const newCard = { name, url, color: color || '#0088dd', category: category || '常用' };
+    if (iconData) newCard.iconData = iconData;
+    else delete newCard.iconData;
+
     if (isAddMode) navData.push(newCard);
     else navData[currentEditIndex] = newCard;
 
@@ -1419,6 +2011,9 @@ function importData(event) {
             renderCards();
             renderCategories();
             renderHomeTask();
+            renderTaskOverview();
+            renderTaskChart();
+            renderMarquee();
             showToast('数据已导入，共 ' + (data.navData ? data.navData.length : 0) + ' 个导航, ' + (data.taskData ? data.taskData.length : 0) + ' 个任务', 'success');
         } catch(err) {
             showToast('导入失败：文件格式不正确', 'warning');
@@ -1448,9 +2043,10 @@ function loadData() {
         try {
             taskData = JSON.parse(localTask).map(item => ({
                 ...item,
-                priority: item.priority || 'medium',
+                projectType: item.projectType || 'general',
                 dueDate: item.dueDate || '',
-                createdAt: item.createdAt || Date.now()
+                createdAt: item.createdAt || Date.now(),
+                completedAt: item.completedAt || (item.done ? Date.now() : undefined)
             }));
         } catch(e) { taskData = []; }
     }
@@ -1459,6 +2055,9 @@ function loadData() {
     renderCategories();
     renderHomeTask();
     updateStats();
+    renderTaskOverview();
+    renderTaskChart();
+    renderMarquee();
 }
 
 // ============================================================
