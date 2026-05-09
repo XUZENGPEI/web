@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>引大济岷工程隧洞地质条件可视化分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf5 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .main-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            margin-bottom: 5px;
+        }
+        .main-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 20px;
+            padding: 14px;
+            background: linear-gradient(to right, #dbeafe, #bfdbfe);
+            border-radius: 12px;
+        }
+        .nav-tabs {
+            border: none;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: bold;
+            color: #475569;
+            margin-right: 6px;
+            transition: all 0.2s;
+        }
+        .nav-tabs .nav-link.active {
+            background: #2563eb;
+            color: #fff !important;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.15);
+        }
+        .section-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: #2563eb; }
+        .btn-success { background: #16a34a; }
+        .btn-warning { background: #ea580c; color: white; }
+        .btn-purple { background: #9333ea; color: white; }
+        .btn-info { background: #06b6d4; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        
+        .form-select { border-radius: 8px; padding: 8px 12px; }
+        .status-box { background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .chart-box { width: 100%; height: 380px; background: white; border-radius: 12px; padding: 10px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05); }
+        .stats-box { background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        pre { white-space: pre-wrap; font-size: 14px; line-height: 1.5; display: none; }
+        .table-responsive { max-height: 600px; overflow: auto; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        table { font-size: 13px; }
+        thead { background: #1e40af; color: white; }
+        
+        .visual-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        .visual-chart {
+            width: 100%;
+            height: 260px !important;
+        }
+        .depth-stat-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 30px 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 4px solid #2563eb;
+        }
+        .depth-stat-card .highlight {
+            font-size: 36px;
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+            margin: 10px 0;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .depth-stat-card span {
+            font-size: 18px;
+            font-weight: bold;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .chart-config-panel {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .config-item {
+            margin-bottom: 12px;
+        }
+        .config-item label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            color: #334155;
+        }
+        .chart-data-table {
+            width: 100%;
+            margin-top: 16px;
+            border-collapse: collapse;
+        }
+        .chart-data-table th {
+            background: #e0e7ff;
+            color: #1e40af;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+        }
+        .chart-data-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+        }
+        .chart-data-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .length-progress {
+            height: 25px;
+            background: #e2e8f0;
+            border-radius: 0;
+            position: relative;
+            margin: 10px 0;
+            width: 100%; 
+        }
+        .length-progress .active {
+            position: absolute;
+            height: 100%;
+            background: #ef4444;
+            border-radius: 0;
+            top: 0;
+        }
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 2px;
+            display: none;
+        }
+        .zoom-btn:hover {
+            background: #f0f0f0;
+        }
+        .attr-dist-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        .attr-row {
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;       
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .attr-label {
+            font-weight: bold;
+            font-size: 17px;
+            color: #000000;
+			font-family: "微软雅黑", sans-serif;
+            white-space: nowrap;
+            min-width: 90px;
+        }
+        .attr-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 15px;
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+        }
+        .attr-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .download-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #d9d9d9;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .download-icon-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.05);
+        }
+        .depth-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .depth-summary-table th {
+            background: #3b82f6;
+            color: #fff;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+        }
+        .depth-summary-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+        }
+        @media (max-width: 768px) {
+            .main-title { font-size: 20px; }
+            .nav-tabs .nav-link { padding: 8px 12px; font-size: 14px; }
+            .chart-box { height: 320px; }
+            .visual-chart { height: 260px !important; }
+            .config-item label { width: 100%; margin-bottom: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-title">引大济岷工程隧洞地质条件可视化分析</div>
+        
+        <ul class="nav nav-tabs" id="mainTab">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#import">数据导入</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#plot">断面可视化</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#visual">分段可视化</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#result">地质统计表</a></li>
+        </ul>
+        
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="import">
+                <div class="main-card">
+                    <div class="section-title">数据导入</div>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;">
+                    <button id="upload" class="btn btn-primary mb-3">选择Excel文件导入</button>
+                    <p id="importTip" class="text-muted">未导入</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="section-title">隧洞范围设置</div>
+                            <div class="row g-3 mb-3 align-items-center">
+                                <div class="col-auto">
+                                    <label>选择隧洞：</label>
+                                    <select id="tunnelSelect" class="form-select" style="width:200px">
+                                        <option value="">请先导入数据</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <label>起始桩号：</label>
+                                    <input id="tunnelStart" class="form-control" style="width:120px" readonly>
+                                </div>
+                                <div class="col-auto">
+                                    <label>终点桩号：</label>
+                                    <input id="tunnelEnd" class="form-control" style="width:120px" readonly>
+                                </div>
+                            </div>
+                        </div>
+						
+						 <div class="col-md-6">
+                            <div class="section-title">埋深分段设置</div>
+                            <div class="row g-3">
+                                <div class="col-auto">
+                                    <label>埋深1:</label>
+                                    <input id="b1" class="form-control" style="width:100px" value="500">
+                                </div>
+                                <div class="col-auto">
+                                    <label>埋深2:</label>
+                                    <input id="b2" class="form-control" style="width:100px" value="1000">
+                                </div>
+                                <div class="col-auto">
+                                    <label>埋深3:</label>
+                                    <input id="b3" class="form-control" style="width:100px" value="1500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title mt-4">数据加载状态</div>
+                    <div id="status" class="row status-box"></div>
+                    
+                    <div class="d-flex gap-3 mt-4">
+                        <button id="processData" class="btn btn-success flex-grow-1">数据处理</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="plot">
+                <div class="chart-box mb-4" id="profileChart"></div>
+
+                <div class="attr-dist-card mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="section-title mb-0">隧洞沿线地质条件分布</div>
+                        <button id="downloadAttrImg" class="download-icon-btn" title="下载属性分布图">
+                            <i class="bi bi-download"></i>
+                        </button>
+                    </div>
+                    <div class="attr-wrapper">
+                        <div id="attrDistribution"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-8">
+                        <div class="chart-box" id="depthChartContainer" style="height: 320px;"></div>
+                        <table class="depth-summary-table" id="depthSummaryTable">
+                            <thead>
+                                <tr>
+                                    <th>埋深区间</th>
+                                    <th>长度(m)</th>
+                                    <th>占比(%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depthTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="col-4">
+                        <div class="depth-stat-card">
+                            <div>
+                                <span>最大埋深</span>
+                                <span class="highlight" id="maxDepth">-</span>
+                            </div>
+                            <div>
+                                <span>平均埋深</span>
+                                <span class="highlight" id="avgDepth">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <pre id="stats"></pre>
+            </div>
+
+            <div class="tab-pane fade" id="visual">
+                <div class="main-card">
+                    <div class="section-title">地质条件占比分析</div>
+                    
+                    <div class="chart-config-panel">
+                        <div class="section-title" style="font-size: 15px;">图表样式设置</div>
+                        <div class="row g-3">
+                            <div class="col-md-4 config-item">
+                                <label>标注位置：</label>
+                                <select id="labelPosition" class="form-select w-auto d-inline-block" style="width:110px;">
+                                    <option value="inner">内部</option>
+                                    <option value="outside">引出</option>
+                                    <option value="top">顶部</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 config-item">
+                                <label>标注文字大小：</label>
+                                <select id="labelFontSize" class="form-select w-auto d-inline-block" style="width:110px;">
+                                    <option value="15">15</option>
+									<option value="12">10</option>
+                                    <option value="12">12</option>
+                                    <option value="18">18</option>
+                                    <option value="20">20</option>
+									<option value="20">25</option>
+									<option value="20">30</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label>标注文字颜色：</label>
+                                <input type="color" id="labelColor" class="form-control-color w-auto d-inline-block" value="#000000">
+                            </div>
+                            <div class="col-md-8 config-item">
+                                <button id="refreshCharts" class="btn btn-info me-2">刷新</button>
+                                <button id="exportAllCharts" class="btn btn-danger">批量导出图表</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="fw-bold">施工分段：</label>
+                        <select id="constructionSelect" class="form-select w-auto d-inline-block ms-2" onchange="refreshAllCharts()"></select>
+                    </div>
+                    
+                    <div id="lengthInfo" class="mb-3">
+                        <div class="fw-bold mb-1" id="lengthText"></div>
+                        <div class="length-progress" id="progressContainer"></div>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">围岩类别占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieRock', '围岩类别占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieRock" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableRock"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">突涌风险水占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieWater', '突涌风险水占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieWater" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableWater"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">岩爆类别占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieRockburst', '岩爆类别占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieRockburst" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableRockburst"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">软岩变形占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieSoft', '软岩变形占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieSoft" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableSoft"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">有害气体占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieGas', '有害气体占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieGas" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableGas"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">中高地温占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieTemp', '中高地温占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieTemp" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableTemp"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="visual-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-center mb-0">自定义项占比</h6>
+                                    <div>
+                                        <button class="btn btn-sm btn-light border" onclick="exportChart('pieOther', '自定义项占比')">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pieOther" class="visual-chart"></div>
+                                <div class="mt-3">
+                                    <table class="chart-data-table" id="tableOther"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="result">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button id="export" class="btn btn-purple">导出保存为Excel</button>
+                    <span id="rowCount" class="text-muted"></span>
+                </div>
+                <div class="table-responsive">
+                    <table id="resultTable" class="table table-bordered table-striped table-hover"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <script>
+        let wbData = {};
+        let finalTable = [];
+        let allConstructionTypes = [];
+        let totalTunnelLength = 0;
+        let tunnelList = [];
+        
+        let chartHeightMap = {
+            pieRock:260,pieWater:260,pieRockburst:260,pieSoft:260,pieGas:260,pieTemp:260,pieOther:260
+        };
+        
+        let profileChart = echarts.init(document.getElementById('profileChart'));
+        let depthChart = echarts.init(document.getElementById('depthChartContainer'));
+        let depthStatsData = { categories:[], values:[], maxDepth:0, avgDepth:0 };
+        let attrFullData = {};
+
+        let pieRock = echarts.init(document.getElementById('pieRock'));
+        let pieWater = echarts.init(document.getElementById('pieWater'));
+        let pieRockburst = echarts.init(document.getElementById('pieRockburst'));
+        let pieSoft = echarts.init(document.getElementById('pieSoft'));
+        let pieGas = echarts.init(document.getElementById('pieGas'));
+        let pieTemp = echarts.init(document.getElementById('pieTemp'));
+        let pieOther = echarts.init(document.getElementById('pieOther'));
+
+        const sortRules = {
+          围岩类别: ["II类", "III类", "IV类", "V类", "断层"],
+          突涌水: ["I", "II", "III", "IV", "V"],
+          岩爆: ["无", "微", "中", "强", "极强"],
+          软岩变形: ["1级", "2级", "3级", "4级", "5级"],
+          有害气体: ["无", "微瓦斯", "低瓦斯", "高瓦斯"],
+          高地温: ["无", "轻微热害", "热害中等", "高地温"],
+          其他: []
+        };
+
+        const colorMap = {
+          "II类": "#5470c6", 
+          "III类": "#91cc75", 
+          "IV类": "#fac858", 
+          "V类": "#ee6666", 
+          "断层": "#d51111",
+          
+          "I": "#5470c6", 
+          "II": "#91cc75", 
+          "III": "#fac858", 
+          "IV": "#ee6666", 
+          "V": "#d51111",
+          
+          "无": "#91cc75", 
+          "微": "#5470c6", 
+          "中": "#fac858", 
+          "强": "#ee6666", 
+          "极强": "#d51111",
+          
+          "低": "#5470c6", 
+          "高": "#ee6666", 
+          "轻": "#5470c6", 
+          "中温": "#ee6666", 
+          "高温": "#d51111"
+        };
+
+        window.addEventListener('resize', () => {
+            profileChart.resize();
+            depthChart.resize();
+            pieRock.resize();
+            pieWater.resize();
+            pieRockburst.resize();
+            pieSoft.resize();
+            pieGas.resize();
+            pieTemp.resize();
+            pieOther.resize();
+        });
+
+        document.querySelector('a[href="#plot"]').addEventListener('shown.bs.tab', () => {
+            if(depthStatsData.categories.length>0){
+                profileChart.resize();
+                depthChart.resize();
+                renderDepthChart();
+            }
+        });
+
+        document.querySelector('a[href="#visual"]').addEventListener('shown.bs.tab', () => {
+            $('#refreshCharts').click();
+            refreshAllCharts();
+        });
+
+        function loadConfig(){
+            let cfg=JSON.parse(localStorage.getItem('tunnelCfg')||'{"b1":"500","b2":"1000","b3":"1500"}');
+            $('#b1').val(cfg.b1);
+            $('#b2').val(cfg.b2);
+            $('#b3').val(cfg.b3);
+        }
+
+        function saveConfig(){
+            let cfg={
+                b1:$('#b1').val(),
+                b2:$('#b2').val(),
+                b3:$('#b3').val()
+            };
+            localStorage.setItem('tunnelCfg',JSON.stringify(cfg));
+        }
+
+        function getValue(sheet,s,e){
+            if(!sheet)return'';
+            for(let r of sheet){
+                let start=parseFloat(r[0]);
+                let end=parseFloat(r[1]);
+                if(start<=s&&end>=e)
+                    return r[2]?r[2].toString().trim():'';
+            }
+            return'';
+        }
+        
+        function getMainRockType(text) {
+            if (!text) return "未知";
+            text = text.trim();
+            const types = ["II类", "III类", "IV类", "V类", "断层"];
+            let maxPercent = -1;
+            let mainType = "未知";
+
+            types.forEach(t => {
+                let reg = new RegExp(t + ".*?(\\d+)%?", "i");
+                let match = text.match(reg);
+                if (match) {
+                    let p = parseInt(match[1]);
+                    if (p > maxPercent) {
+                        maxPercent = p;
+                        mainType = t;
+                    }
+                }
+            });
+            if (types.includes(text)) return text;
+            return mainType;
+        }
+        
+        function parseRock(txt,len){
+            let ii=iii=iv=v=fault=0;
+            if(!txt)return[ii,iii,iv,v,fault];
+            txt=txt.trim();
+            
+            if(txt==='II类')ii=len;
+            else if(txt==='III类')iii=len;
+            else if(txt==='IV类')iv=len;
+            else if(txt==='V类')v=len;
+            else if(txt==='断层')fault=len;
+            else{
+                let items=txt.split(/[,，]/);
+                for(let it of items){
+                    it=it.trim();
+                    let m=it.match(/(\d+)%?/);
+                    if(!m)continue;
+                    let p=parseFloat(m[1])/100;
+                    if(it.startsWith('II类'))ii=len*p;
+                    if(it.startsWith('III类'))iii=len*p;
+                    if(it.startsWith('IV类'))iv=len*p;
+                    if(it.startsWith('V类'))v=len*p;
+                    if(it.startsWith('断层'))fault=len*p;
+                }
+            }
+            return[
+                Math.round(ii*100)/100,
+                Math.round(iii*100)/100,
+                Math.round(iv*100)/100,
+                Math.round(v*100)/100,
+                Math.round(fault*100)/100
+            ];
+        }
+
+        function getDepthRegion(d,breaks){
+            breaks=breaks.filter(x=>!isNaN(x)).sort((a,b)=>a-b);
+            if(breaks.length===0)return'未分区';
+            for(let i=0;i<breaks.length;i++){
+                if(i===0&&d<=breaks[i])return`0-${breaks[i]}m`;
+                if(i>0&&d>breaks[i-1]&&d<=breaks[i])return`${breaks[i-1]}-${breaks[i]}m`;
+            }
+            return`>${breaks[breaks.length-1]}m`;
+        }
+
+        function loadTunnelList() {
+            if (!wbData["隧洞桩号"]) {
+                tunnelList = [];
+                $('#tunnelSelect').html('<option value="">无隧洞数据</option>');
+                return;
+            }
+            tunnelList = wbData["隧洞桩号"].filter(r => r.length >= 3 && r[0] && !isNaN(parseFloat(r[1])) && !isNaN(parseFloat(r[2])));
+            let select = $('#tunnelSelect');
+            select.empty();
+            select.append('<option value="">请选择隧洞</option>');
+            tunnelList.forEach(item => {
+                let name = item[0].toString().trim();
+                select.append(`<option value="${name}">${name}</option>`);
+            });
+        }
+
+        $('#tunnelSelect').change(function() {
+            let name = $(this).val();
+            if (!name) {
+                $('#tunnelStart').val('').attr('readonly', false);
+                $('#tunnelEnd').val('').attr('readonly', false);
+                return;
+            }
+            let tunnel = tunnelList.find(item => item[0].toString().trim() === name);
+            if (tunnel) {
+                $('#tunnelStart').val(parseFloat(tunnel[1])).attr('readonly', false);
+                $('#tunnelEnd').val(parseFloat(tunnel[2])).attr('readonly', false);
+            }
+        });
+
+        function getTunnelFloorElevation(x) {
+            if (!wbData["底板高程"]) return 0;
+            let data = wbData["底板高程"].filter(r => r.length >= 2 && !isNaN(parseFloat(r[0])) && !isNaN(parseFloat(r[1])));
+            let xs = data.map(r => parseFloat(r[0]));
+            let ys = data.map(r => parseFloat(r[1]));
+            
+            for (let i = 1; i < xs.length; i++) {
+                let x0 = xs[i-1], x1 = xs[i];
+                if (x >= x0 && x <= x1) {
+                    let y0 = ys[i-1], y1 = ys[i];
+                    let k = (x - x0) / (x1 - x0);
+                    return y0 + k * (y1 - y0);
+                }
+            }
+            return ys[0] || 0;
+        }
+
+        $('#upload').click(function () {
+            $('#fileInput').click();
+        });
+
+        $('#fileInput').change(function (e) {
+            if (!e.target.files || e.target.files.length === 0) return;
+            let reader = new FileReader();
+            reader.onload = function (ev) {
+                try {
+                    let wb = XLSX.read(ev.target.result, { type: 'binary' });
+                    let sheets = ["底板高程", "隧洞桩号", "断面数据", "施工分段", "围岩分类", "突涌水", "岩爆", "软岩变形", "有害气体", "高地温", "其他"];
+                    let statusHtml = '';
+                    
+                    sheets.forEach(s => {
+                        if (wb.SheetNames.includes(s)) {
+                            wbData[s] = XLSX.utils.sheet_to_json(wb.Sheets[s], { header: 1 });
+                            statusHtml += `<div class='col-4'>${s}：✅ 已加载</div>`;
+                        } else {
+                            wbData[s] = null;
+                            statusHtml += `<div class='col-4'>${s}：❌ 无此表</div>`;
+                        }
+                    });
+                    
+                    $('#status').html(statusHtml);
+                    $('#importTip').text('导入完成');
+                    loadTunnelList();
+                } catch (err) {
+                    alert('读取失败：' + err.message);
+                }
+            };
+            reader.readAsBinaryString(e.target.files[0]);
+        });
+
+        function renderDepthChart(){
+            let totalLength = depthStatsData.values.reduce((a,b)=>a+b,0);
+            let data = depthStatsData.categories.map((name,i)=>{
+                return{
+                    name,
+                    value:depthStatsData.values[i],
+                    itemStyle:{
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            {offset:0, color:['#60a5fa','#34d399','#fbbf24','#f87171'][i%4]},
+                            {offset:1, color:['#3b82f6','#10b981','#f59e0b','#ef4444'][i%4]}
+                        ])
+                    }
+                };
+            });
+            depthChart.setOption({
+                title:{text:'埋深分布统计',left:'center',textStyle:{fontSize:15,fontWeight:'bold'}},
+                tooltip:{trigger:'item',formatter:'{b}: {c}m ({d}%)'},
+                legend:{orient:'horizontal',bottom:0},
+                series:[{
+                    name:'埋深',
+                    type:'pie',
+                    radius:['40%','75%'],
+                    center:['50%','50%'],
+                    data:data,
+                    label:{show:true,formatter:'{d}%',fontSize:14,fontWeight:'bold'},
+                    emphasis:{itemStyle:{shadowBlur:10}}
+                }]
+            });
+
+            let tbody = $('#depthTableBody');
+            tbody.empty();
+            data.forEach(item=>{
+                let percent = ((item.value/totalLength)*100).toFixed(2);
+                tbody.append(`
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.value.toFixed(2)}</td>
+                        <td>${percent}%</td>
+                    </tr>
+                `);
+            });
+        }
+
+        function renderAttrDistribution() {
+            const container = $('#attrDistribution');
+            container.empty();
+            if (!attrFullData || Object.keys(attrFullData).length === 0) return;
+
+            const xs = Object.keys(attrFullData).map(Number).sort((a, b) => a - b);
+            const minX = xs[0];
+            const maxX = xs[xs.length - 1];
+            const totalLen = maxX - minX;
+
+            const attrKeys = [
+                { key: '施工方法', label: '施工方法' },
+                { key: '围岩类别', label: '围岩类别' },
+                { key: '岩爆', label: '岩爆' },
+                { key: '软岩变形', label: '软岩变形' },
+                { key: '突泥涌水', label: '突泥涌水' },
+                { key: '有害气体', label: '有害气体' },
+                { key: '高地温', label: '高地温' },
+                { key: '其他', label: '其他' }
+            ];
+			
+			const attrSortMap = {
+			    '围岩类别': ["II类", "III类", "IV类", "V类", "断层"],
+			    '岩爆': ["无", "微", "中", "强", "极强"],
+			    '突泥涌水': ["I", "II", "III", "IV", "V"],
+			    '有害气体': ["无", "微瓦斯", "低瓦斯", "高瓦斯"],
+			    '高地温': ["无", "轻微中等", "热害轻微"],
+			    '软岩变形': ["无", "1级", "2级", "3级", "4级"],
+			    '施工方法': [],
+			    '其他': []
+			};
+			
+
+            attrKeys.forEach(ak => {
+                const key = ak.key;
+                const label = ak.label;
+                const allValues = [...new Set(xs.map(x => attrFullData[x][key] || "无"))];
+                const sortOrder = attrSortMap[label] || [];
+                const values = [];
+                sortOrder.forEach(v => {
+                    if (allValues.includes(v)) values.push(v);
+                });
+                allValues.forEach(v => {
+                    if (!values.includes(v)) values.push(v);
+                });
+                const colorPool = ["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4"];
+                const valColor = {};
+                
+                values.forEach((v,i) => {
+                    if (v === "无" || !v || v === "-" || v === "未知" || v === "无数据"|| v === " "|| v === "") {
+                        valColor[v] = "#cccccc";
+                    } else {
+                        valColor[v] = colorMap[v] || colorPool[i%colorPool.length];
+                    }
+                });
+
+                const row = $(`<div class="attr-row"></div>`);
+                const labelDiv = $(`<div class="attr-label">${label}</div>`);
+                const bar = $(`<div class="length-progress"></div>`);
+
+                for (let i = 0; i < xs.length - 1; i++) {
+                    const x1 = xs[i];
+                    const x2 = xs[i + 1];
+                    const v = attrFullData[x1][key] || "无";
+                    const left = ((x1 - minX) / totalLen) * 100;
+                    const width = ((x2 - x1) / totalLen) * 100;
+                    const seg = $(`<div class="active"></div>`);
+                    seg.css({ 
+                        left: left + '%', 
+                        width: width + '%', 
+                        background: valColor[v],
+                        border: 'none',
+                        margin: 0,
+                        padding: 0
+                    });
+                    bar.append(seg);
+                }
+
+                const legend = $(`<div class="attr-legend"></div>`);
+                values.forEach(v => {
+                    const item = $(`<div class="legend-item"><div class="legend-color" style="background:${valColor[v]}"></div><span>${v}</span></div>`);
+                    legend.append(item);
+                });
+
+                row.append(labelDiv).append(legend).append(bar);
+                container.append(row);
+            });
+        }
+
+        $('#downloadAttrImg').click(function () {
+            const target = document.querySelector('.attr-dist-card');
+            html2canvas(target, { 
+                scale: 4,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '隧洞属性分布图.png';
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+            });
+        });
+
+        // 1. 先生成完整统计表（按选择的桩号范围）
+        function doGenerateTableFirst(){
+            saveConfig();
+            if(!wbData["断面数据"]||!wbData["围岩分类"]||!wbData["底板高程"]){
+                alert('请先导入完整数据');
+                return false;
+            }
+
+            let startX = parseFloat($('#tunnelStart').val());
+            let endX = parseFloat($('#tunnelEnd').val());
+            if (isNaN(startX) || isNaN(endX) || startX >= endX) {
+                alert('请设置正确的桩号范围');
+                return false;
+            }
+
+            try{
+                let breaks=[parseFloat($('#b1').val()),parseFloat($('#b2').val()),parseFloat($('#b3').val())];
+                let sec=wbData["断面数据"].filter(r=>r.length>=2&&!isNaN(parseFloat(r[0])));
+                let xa=sec.map(r=>parseFloat(r[0]));
+                let ya=sec.map(r=>parseFloat(r[1]));
+                
+                let rows=[];
+                for(let s=startX;s<endX;s++){
+                    let e=s+1;
+                    let con=getValue(wbData["施工分段"],s,e);
+                    let rtxt=getValue(wbData["围岩分类"],s,e);
+                    let[ii,iii,iv,v,f]=parseRock(rtxt,1);
+                    let ir=getValue(wbData["突涌水"],s,e);
+                    let rb=getValue(wbData["岩爆"],s,e);
+                    let sf=getValue(wbData["软岩变形"],s,e);
+                    let gs=getValue(wbData["有害气体"],s,e);
+                    let ht=getValue(wbData["高地温"],s,e);
+                    let ot=getValue(wbData["其他"],s,e);
+                    
+                    let sy=0;
+                    for(let i=1;i<xa.length;i++){
+                        if(xa[i-1]<=s&&xa[i]>=s){
+                            let dx=xa[i]-xa[i-1];
+                            let w=(s-xa[i-1])/dx;
+                            sy=ya[i-1]*(1-w)+ya[i]*w;
+                            break;
+                        }
+                    }
+                    
+                    let tn = getTunnelFloorElevation(s);
+                    let dp=sy-tn;
+                    let rg=getDepthRegion(dp,breaks);
+                    rows.push([s,e,con,rtxt,ii,iii,iv,v,f,ir,rb,sf,gs,ht,ot,rg]);
+                }
+                
+                let keys=[2,3,9,10,11,12,13,14,15];
+                let groups=[];
+                let g=0;
+                groups.push(g);
+                
+                for(let i=1;i<rows.length;i++){
+                    let same=true;
+                    for(let k of keys){
+                        if(rows[i][k]!==rows[i-1][k]){
+                            same=false;
+                            break;
+                        }
+                    }
+                    if(!same)g++;
+                    groups.push(g);
+                }
+                
+                let groupMap={};
+                rows.forEach((r,i)=>{
+                    let g=groups[i];
+                    if(!groupMap[g])groupMap[g]=[];
+                    groupMap[g].push(r);
+                });
+                
+                let result=[];
+                Object.values(groupMap).forEach(g=>{
+                    let sMin=Math.min(...g.map(r=>r[0]));
+                    let eMax=Math.max(...g.map(r=>r[1]));
+                    let first=g[0];
+                    let sumII=g.reduce((a,b)=>a+b[4],0);
+                    let sumIII=g.reduce((a,b)=>a+b[5],0);
+                    let sumIV=g.reduce((a,b)=>a+b[6],0);
+                    let sumV=g.reduce((a,b)=>a+b[7],0);
+                    let sumF=g.reduce((a,b)=>a+b[8],0);
+                    
+                    result.push([
+                        sMin,eMax,first[2],first[3],
+                        Math.round(sumII*100)/100,
+                        Math.round(sumIII*100)/100,
+                        Math.round(sumIV*100)/100,
+                        Math.round(sumV*100)/100,
+                        Math.round(sumF*100)/100,
+                        first[9],first[10],first[11],first[12],first[13],first[14],first[15]
+                    ]);
+                });
+                
+                finalTable=result;
+                totalTunnelLength=result.reduce((sum,row)=>sum+(row[1]-row[0]),0);
+                
+                let headers=["起始桩号","终点桩号","施工分段","围岩分类","II类长度","III类长度","IV类长度","V类长度","断层长度",
+                             "突涌水","岩爆","软岩变形","有害气体","高地温","其他","埋深区间"];
+                let html='<thead><tr>';
+                headers.forEach(h=>html+=`<th>${h}</th>`);
+                html+='</tr><tbody>';
+                result.forEach(r=>{
+                    html+='<tr>';
+                    r.forEach(c=>html+=`<td>${c===''?'-':c}</td>`);
+                    html+='</tr>';
+                });
+                html+='</tbody>';
+                $('#resultTable').html(html);
+                $('#rowCount').text(`共 ${result.length} 段`);
+                
+                loadConstructionOptions();
+                refreshAllCharts();
+                return true;
+            }catch(err){
+                alert('生成失败：'+err.message);
+                return false;
+            }
+        }
+
+        // 2. 用统计表数据绘图（底板高程来自插值）
+        function doCalcDepthFromTable(){
+            try{
+                if (finalTable.length === 0) return false;
+
+                // 从汇总表获取真实起止桩号
+                const tableStart = finalTable[0][0];
+                const tableEnd = finalTable[finalTable.length - 1][1];
+
+                let breaks=[parseFloat($('#b1').val()),parseFloat($('#b2').val()),parseFloat($('#b3').val())];
+                let sec=wbData["断面数据"].filter(r=>r.length>=2&&!isNaN(parseFloat(r[0])));
+                let xs=sec.map(r=>parseFloat(r[0])).sort((a,b)=>a-b);
+                let yt=xs.map(x=>{
+                    for(let r of sec){
+                        if(parseFloat(r[0])===x)return parseFloat(r[1]);
+                    }
+                    return 0;
+                });
+                let ytun=xs.map(x=>getTunnelFloorElevation(x));
+                let dep=xs.map((_,i)=>yt[i]-ytun[i]);
+                
+                // 只保留汇总表桩号范围内的点
+                let filtered = [];
+                for (let i = 0; i < xs.length; i++) {
+                    const x = xs[i];
+                    if (x >= tableStart && x <= tableEnd) {
+                        filtered.push({
+                            x: x,
+                            y: yt[i],
+                            tun: ytun[i],
+                            depth: dep[i]
+                        });
+                    }
+                }
+                if (filtered.length === 0) return false;
+
+                xs = filtered.map(f => f.x);
+                yt = filtered.map(f => f.y);
+                ytun = filtered.map(f => f.tun);
+                dep = filtered.map(f => f.depth);
+
+                let dx=[],dm=[];
+                for(let i=1;i<xs.length;i++){
+                    dx.push(xs[i]-xs[i-1]);
+                    dm.push(dep[i-1]);
+                }
+                
+                let pre=0;
+                let categories=[];
+                let values=[];
+                
+                breaks.filter(b=>!isNaN(b)).sort((a,b)=>a-b).forEach(b=>{
+                    let sum=0;
+                    for(let i=0;i<dm.length;i++){
+                        if(dm[i]>pre&&dm[i]<=b)sum+=dx[i];
+                    }
+                    categories.push(`${pre}~${b}m`);
+                    values.push(sum.toFixed(2));
+                    pre=b;
+                });
+                
+                let sumLast=0;
+                for(let i=0;i<dm.length;i++){
+                    if(dm[i]>pre)sumLast+=dx[i];
+                }
+                
+                let maxDepth=Math.max(...dep).toFixed(2);
+                let avgDepth=(dep.reduce((a,b)=>a+b,0)/dep.length).toFixed(2);
+                categories.push(`>${pre}m`);
+                values.push(sumLast.toFixed(2));
+                
+                depthStatsData.categories=categories;
+                depthStatsData.values=values.map(v=>parseFloat(v));
+                depthStatsData.maxDepth=maxDepth;
+                depthStatsData.avgDepth=avgDepth;
+                
+                $('#maxDepth').text(`${Math.round(maxDepth)}m`);
+                $('#avgDepth').text(`${Math.round(avgDepth)}m`);
+                renderDepthChart();
+
+                let allY = [...yt, ...ytun];
+                let yMin = Math.floor(Math.min(...allY) / 100) * 100 - 200;
+                let yMax = Math.ceil(Math.max(...allY) / 100) * 100;
+
+                let xMin = Math.min(...xs);
+                let xMax = Math.max(...xs);
+                let xTicks = [];
+                for (let t = Math.floor(xMin / 2000) * 2000; t <= Math.ceil(xMax / 2000) * 2000; t += 2000) {
+                    xTicks.push(t);
+                }
+
+                let maxDepIndex = dep.indexOf(Math.max(...dep));
+                let maxDepX = xs[maxDepIndex];
+                let maxDepY = yt[maxDepIndex];
+                let maxDepValue = Math.round(dep[maxDepIndex]);
+
+                // 从 finalTable 匹配桩号 → 取长度最大围岩类别
+                attrFullData = {};
+                xs.forEach(x => {
+                    let row = finalTable.find(r => x >= r[0] && x <= r[1]);
+                    let II = row ? Number(row[4]) : 0;
+                    let III = row ? Number(row[5]) : 0;
+                    let IV = row ? Number(row[6]) : 0;
+                    let V = row ? Number(row[7]) : 0;
+                    let fault = row ? Number(row[8]) : 0;
+
+                    let lenMap = { "II类": II, "III类": III, "IV类": IV, "V类": V, "断层": fault };
+                    let maxLen = -1;
+                    let rockType = "未知";
+                    for (let t in lenMap) {
+                        if (lenMap[t] > maxLen) {
+                            maxLen = lenMap[t];
+                            rockType = t;
+                        }
+                    }
+
+                    attrFullData[x] = {
+                        施工方法: row ? row[2] : "无",
+                        围岩类别: rockType,
+                        岩爆: row ? row[10] : "无",
+                        软岩变形: row ? row[11] : "无",
+                        突泥涌水: row ? row[9] : "无",
+                        有害气体: row ? row[12] : "无",
+                        高地温: row ? row[13] : "无",
+                        其他: row ? row[14] : "无"
+                    };
+                });
+				function getOriginalRockText(x) {
+                    let row = finalTable.find(r => x >= r[0] && x <= r[1]);
+                    return row ? row[3] : "";
+                }
+
+                // 修复完成：连续数值桩号X轴 + 正确二维坐标
+                profileChart.setOption({
+                    title:{text:'隧洞断面可视化',left:'center',textStyle:{fontSize:16,fontWeight:'bold'}},
+                    tooltip:{
+                        trigger:'axis',
+                        formatter: params => {
+                            const x = params[0].axisValue;
+                            const d = attrFullData[x] || {};
+                            return `桩号：${x}<br/>
+                            施工方法：${d.施工方法 || '-'}<br/>
+                            围岩类别：${getOriginalRockText(x) || '-'}<br/>
+                            岩爆：${d.岩爆 || '-'}<br/>
+                            软岩变形：${d.软岩变形 || '-'}<br/>
+                            突泥涌水：${d.突泥涌水 || '-'}<br/>
+                            有害气体：${d.有害气体 || '-'}<br/>
+                            高地温：${d.高地温 || '-'}<br/>
+                            其他：${d.其他 || '-'}`;
+                        }
+                    },
+                    legend:{data:['地面高程','隧洞底板'],bottom:0},
+                    grid:{left:'3%',right:'4%',bottom:'8%',containLabel:true},
+                    xAxis: {
+                        type: 'value',
+                        name: '桩号(m)',
+                        nameLocation: 'middle',
+                        nameGap: 30,
+                        min: tableStart,   // 起点桩号
+max: tableEnd,     // 终点桩号
+                        axisLabel: {
+                            fontSize: 12,
+                            color: "#333"
+                        },
+                        axisTick: { show: true }
+                    },
+                    yAxis:{
+                        type:'value', 
+                        min: yMin, 
+                        max: yMax, 
+                        name:'高程(m)'
+                    },
+                    series:[
+    {
+        name:'地面高程',
+        type:'line',
+        data: xs.map((x, idx) => [x, yt[idx]]),
+        showSymbol: false,      // 不显示散点
+        lineStyle:{width:3,color:'#FF8C42'},
+        itemStyle:{color:'#FF8C42'},
+        areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+                {offset:0, color:'#FFE0B2'},
+                {offset:1, color:'#FF8C42'}
+            ])
+        }
+    },
+    {
+        name:'隧洞底板',
+        type:'line',
+        data: xs.map((x, idx) => [x, ytun[idx]]),
+        showSymbol: false,      // 不显示散点
+        lineStyle:{width:3,color:'#8dd1e1'},
+        itemStyle:{color:'#8dd1e1'}
+    },
+    {
+        name:'最大埋深',
+        type:'scatter',
+        data:[[maxDepX, maxDepY]],
+        symbolSize:12,
+        itemStyle:{color:'#ff0000',borderWidth:2,borderColor:'#fff'},
+        label:{
+            show:true,
+            formatter:`最大埋深：${maxDepValue}m`,
+			offset: [0, 0],  // 👈 强制往上偏移80像素（图表顶部）
+            position:'top',
+            fontSize:14,
+            fontWeight:'bold',
+            color:'#ff0000'
+        }
+    }
+]
+                });
+
+                renderAttrDistribution();
+                return true;
+            }catch(err){
+                alert('计算失败：'+err.message);
+                return false;
+            }
+        }
+
+        // 按钮执行顺序：先生成表 → 再绘图
+        $('#processData').click(()=>{
+            let tableSuccess = doGenerateTableFirst();
+            if(tableSuccess){
+                doCalcDepthFromTable();
+                alert('数据处理完成！\n✅ 已先生成地质统计表\n✅ 再用统计表绘制所有图表');
+            }
+        });
+
+        function loadConstructionOptions(){
+            let types=new Set();
+            finalTable.forEach(row=>{
+                let t=row[2]||"未知施工段";
+                types.add(t);
+            });
+            allConstructionTypes=Array.from(types);
+            let select=$('#constructionSelect');
+            select.empty();
+            select.append('<option value="all">全部施工段</option>');
+            allConstructionTypes.forEach(t=>{
+                select.append(`<option value="${t}">${t}</option>`);
+            });
+        }
+
+        function generateDataTable(tableId,dataMap){
+            let total=Object.values(dataMap).reduce((a,b)=>a+b,0);
+            let html='<thead><tr><th>类型</th><th>长度(m)</th><th>占比(%)</th></tr></thead><tbody>';
+            for(let key in dataMap){
+                let length=dataMap[key].toFixed(2);
+                let ratio=((dataMap[key]/total)*100).toFixed(2);
+                html+=`<tr><td>${key}</td><td>${length}</td><td>${ratio}</td></tr>`;
+            }
+            html+='</tbody>';
+            $(`#${tableId}`).html(html);
+        }
+
+        function showLengthInfo(selected) {
+            let segList;
+            let displayName;
+            let totalLen;
+
+            if(selected === 'all') {
+                segList = finalTable;
+                displayName = "全部施工段";
+                totalLen = totalTunnelLength;
+            } else {
+                segList = finalTable.filter(r => (r[2] || '未知施工段') === selected);
+                displayName = selected;
+                totalLen = segList.reduce((sum, s) => sum + (s[1] - s[0]), 0);
+            }
+
+            if(segList.length === 0) {
+                $('#lengthInfo').hide();
+                return;
+            }
+
+            const globalStart = finalTable[0][0];
+            const globalEnd   = finalTable[finalTable.length - 1][1];
+            const globalTotalLength = globalEnd - globalStart;
+
+            let text = `当前段：${displayName} | 总长度：${totalLen.toFixed(2)}m`;
+            $('#lengthText').text(text);
+
+            let container = $('#progressContainer');
+            container.empty();
+
+            segList.forEach(seg => {
+                let segStart = seg[0];
+                let segEnd   = seg[1];
+                let segLen   = segEnd - segStart;
+
+                let leftPercent = ((segStart - globalStart) / globalTotalLength) * 100;
+                let widthPercent = (segLen / globalTotalLength) * 100;
+
+                let bar = $('<div class="active"></div>');
+                bar.css({
+                    left: leftPercent + '%',
+                    width: widthPercent + '%',
+                    position: 'absolute',
+                    height: '100%'
+                });
+                container.append(bar);
+            });
+
+            $('#lengthInfo').show();
+        }
+
+        function refreshAllCharts(){
+            if(finalTable.length===0)return;
+            let selected=$('#constructionSelect').val();
+            let filtered=selected!=='all'?finalTable.filter(row=>(row[2]||"未知施工段")===selected):finalTable;
+            showLengthInfo(selected);
+            buildAllCharts(filtered);
+        }
+
+        $('#refreshCharts').click(()=>{
+            refreshAllCharts();
+            pieRock.resize();
+            pieWater.resize();
+            pieRockburst.resize();
+            pieSoft.resize();
+            pieGas.resize();
+            pieTemp.resize();
+            pieOther.resize();
+        });
+        
+        function isEmptyValue(name) {
+            const emptyList = ["", "无", "未知", "无数据", "-", " ", "null", "undefined"];
+            return emptyList.includes(name.trim ? name.trim() : name);
+        }
+
+        function getSortedData(dataMap, type) {
+          let sorted = [];
+          const rule = sortRules[type] || [];
+
+          if (type === "软岩变形") {
+            sorted = Object.keys(dataMap).sort((a, b) => Number(a) - Number(b));
+          } else {
+            rule.forEach(k => { if (dataMap[k] !== undefined) sorted.push(k); });
+            Object.keys(dataMap).forEach(k => { if (!sorted.includes(k)) sorted.push(k); });
+          }
+
+          const colorPalette = [
+            "#5470c6", "#91cc75", "#fac858", "#ee6666", "#73c0de",
+            "#3ba272", "#fc8452", "#9a60b4", "#ea7ccc", "#5ad9a3",
+            "#c7e5ff", "#ffd6cc", "#d1f7ff", "#ffcceb", "#e2f5b8"
+          ];
+
+          return sorted.map((name, index) => ({
+            name,
+            value: dataMap[name],
+            itemStyle: {
+              color: isEmptyValue(name) ? "#cccccc" : (colorMap[name] || colorPalette[index % colorPalette.length])
+            }
+          }));
+        }
+        
+        function buildAllCharts(data){
+            let rockData={
+                "II类":data.reduce((s,r)=>s+r[4],0),
+                "III类":data.reduce((s,r)=>s+r[5],0),
+                "IV类":data.reduce((s,r)=>s+r[6],0),
+                "V类":data.reduce((s,r)=>s+r[7],0),
+                "断层":data.reduce((s,r)=>s+r[8],0)
+            };
+            
+            let waterMap={},rbMap={},softMap={},gasMap={},tempMap={},otherMap={};
+            data.forEach(row=>{
+                let l=row[1]-row[0];
+                waterMap[row[9]||"无"]=(waterMap[row[9]||"无"]||0)+l;
+                rbMap[row[10]||"无"]=(rbMap[row[10]||"无"]||0)+l;
+                softMap[row[11]||"无"]=(softMap[row[11]||"无"]||0)+l;
+                gasMap[row[12]||"无"]=(gasMap[row[12]||"无"]||0)+l;
+                tempMap[row[13]||"无"]=(tempMap[row[13]||"无"]||0)+l;
+                otherMap[row[14]||"无"]=(otherMap[row[14]||"无"]||0)+l;
+            });
+            
+            rockData=filterZero(rockData);
+            waterMap=filterZero(waterMap);
+            rbMap=filterZero(rbMap);
+            softMap=filterZero(softMap);
+            gasMap=filterZero(gasMap);
+            tempMap=filterZero(tempMap);
+            otherMap=filterZero(otherMap);
+            
+            drawPie(pieRock, getSortedData(rockData, "围岩类别"), "围岩类别占比");
+            drawPie(pieWater, getSortedData(waterMap, "突涌水风险"), "突涌水风险占比");
+            drawPie(pieRockburst, getSortedData(rbMap, "岩爆"), "岩爆占比");
+            drawPie(pieSoft, getSortedData(softMap, "软岩变形"), "软岩变形占比");
+            drawPie(pieGas, getSortedData(gasMap, "有害气体"), "有害气体占比");
+            drawPie(pieTemp, getSortedData(tempMap, "中高地温"), "中高地温占比");
+            drawPie(pieOther, getSortedData(otherMap, "自定义"), "自定义占比");
+            
+            generateDataTable('tableRock',rockData);
+            generateDataTable('tableWater',waterMap);
+            generateDataTable('tableRockburst',rbMap);
+            generateDataTable('tableSoft',softMap);
+            generateDataTable('tableGas',gasMap);
+            generateDataTable('tableTemp',tempMap);
+            generateDataTable('tableOther',otherMap);
+        }
+
+        function filterZero(map){
+            let res={};
+            for(let k in map){
+                if(map[k]>0.01)res[k]=map[k];
+            }
+            return res;
+        }
+
+        function drawPie(chart,dataArr,titleText){
+            let labelPosition=$('#labelPosition').val();
+            let labelFontSize=parseInt($('#labelFontSize').val());
+            let labelColor=$('#labelColor').val();
+            
+            let labelConfig={
+                show:true,
+                fontSize:labelFontSize,
+                color:labelColor,
+                formatter:'{d}%',
+                fontWeight:'bold'
+            };
+            
+            if(labelPosition==='inner')labelConfig.position='inner';
+            else if(labelPosition==='outside')labelConfig.position='outside';
+            else if(labelPosition==='top')labelConfig.position='top';
+            
+            chart.setOption({
+                title:{text:titleText,left:'center',textStyle:{fontSize:14}},
+                tooltip:{trigger:'item'},
+                legend:{type:'scroll',orient:'horizontal',bottom:0,textStyle:{fontSize:13}},
+                series:[{
+                    name:'',
+                    type:'pie',
+                    radius:['45%','80%'],
+                    center:['50%','50%'],
+                    data:dataArr,
+                    label:labelConfig,
+                    labelLine:{show:labelPosition==='outside'},
+                    emphasis:{itemStyle:{shadowBlur:10}}
+                }]
+            });
+        }
+
+        function exportChart(chartId,chartType){
+            let selectedSection=$('#constructionSelect').val();
+            let sectionName=selectedSection==='all'?'全部施工段':selectedSection;
+            let fileName=`${sectionName}${chartType}.png`;
+            
+            let chartInstance;
+            switch(chartId){
+                case'pieRock':chartInstance=pieRock;break;
+                case'pieWater':chartInstance=pieWater;break;
+                case'pieRockburst':chartInstance=pieRockburst;break;
+                case'pieSoft':chartInstance=pieSoft;break;
+                case'pieGas':chartInstance=pieGas;break;
+                case'pieTemp':chartInstance=pieTemp;break;
+                case'pieOther':chartInstance=pieOther;break;
+                default:return;
+            }
+            
+            let imgData=chartInstance.getDataURL({
+                type:'png',
+                pixelRatio:2,
+                backgroundColor:'#fff'
+            });
+            
+            let link=document.createElement('a');
+            link.href=imgData;
+            link.download=fileName;
+            link.click();
+        }
+
+        $('#exportAllCharts').click(()=>{
+            let charts=[
+                {id:'pieRock',type:'围岩类别占比'},
+                {id:'pieWater',type:'突涌水占比'},
+                {id:'pieRockburst',type:'岩爆占比'},
+                {id:'pieSoft',type:'软岩变形占比'},
+                {id:'pieGas',type:'有害气体占比'},
+                {id:'pieTemp',type:'高地温占比'},
+                {id:'pieOther',type:'其他占比'}
+            ];
+            charts.forEach(chart=>exportChart(chart.id,chart.type));
+            alert('所有图表已开始导出！');
+        });
+
+        $('#export').click(()=>{
+            if(finalTable.length===0){
+                alert('先生成表格');
+                return;
+            }
+            let headers=["起始桩号","终点桩号","施工分段","围岩分类","II类长度","III类长度","IV类长度","V类长度","断层长度",
+                         "突涌水","岩爆","软岩变形","有害气体","高地温","其他","埋深区间"];
+            let data=[headers,...finalTable];
+            let ws=XLSX.utils.aoa_to_sheet(data);
+            let wb=XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb,ws,"地质统计表");
+            XLSX.writeFile(wb,"隧洞地质统计表.xlsx");
+        });
+
+        $(function(){
+            loadConfig();
+        });
+    </script>
+</body>
+</html>
