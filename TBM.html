@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>引大济岷工程 · TBM选型及技术参数</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* =============================================
+           RESET + BASE
+           ============================================= */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        :root {
+            --bg-deep: #080c16;
+            --bg-surface: #0f1629;
+            --bg-card: #141d33;
+            --bg-card-hover: #1a2540;
+            --border-subtle: rgba(74,124,155,0.15);
+            --border-mid: rgba(74,124,155,0.25);
+
+            --amber: #c9954a;
+            --amber-soft: #d4a96a;
+            --amber-glow: rgba(201,149,74,0.15);
+            --steel: #4a7c9b;
+            --steel-light: #6a9cb8;
+            --steel-glow: rgba(74,124,155,0.12);
+            --copper: #c97a5a;
+            --copper-glow: rgba(201,122,90,0.12);
+            --teal: #3d9b8f;
+
+            --text-primary: #e8edf5;
+            --text-secondary: #9aabbf;
+            --text-muted: #5a6b7f;
+
+            --font-display: 'Playfair Display', 'Times New Roman', serif;
+            --font-body: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+            --section-gap: 24px;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* subtle noise overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+        }
+
+        /* =============================================
+           HERO — dramatic industrial editorial
+           ============================================= */
+        .hero {
+            position: relative;
+            padding: 80px 48px 64px;
+            margin: 28px 0 32px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: linear-gradient(160deg, #0a1228 0%, #0f1f3a 40%, #162845 70%, #0d1a2e 100%);
+            border: 1px solid var(--border-mid);
+            text-align: center;
+        }
+
+        /* geometric grid pattern */
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(74,124,155,0.04) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(74,124,155,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        /* diagonal accent line */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 45%; height: 100%;
+            background: linear-gradient(135deg, transparent 40%, rgba(201,149,74,0.04) 60%, rgba(201,149,74,0.08) 100%);
+            clip-path: polygon(40% 0, 100% 0, 100% 100%, 0% 100%);
+            pointer-events: none;
+        }
+
+        .hero-content { position: relative; z-index: 1; }
+
+        .hero-label {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--steel-light);
+            border: 1px solid var(--border-subtle);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            background: rgba(74,124,155,0.06);
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 4.2vw, 52px);
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #f0e6d0 0%, #c9954a 50%, #e8edf5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: clamp(14px, 1.5vw, 18px);
+            color: var(--text-secondary);
+            margin: 12px 0 6px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .hero-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-weight: 400;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .hero-badges .badge {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 18px;
+            border-radius: 20px;
+            background: rgba(74,124,155,0.08);
+            border: 1px solid var(--border-subtle);
+            color: var(--steel-light);
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .hero-badges .badge:hover {
+            background: rgba(74,124,155,0.18);
+            border-color: rgba(74,124,155,0.4);
+            transform: translateY(-1px);
+        }
+
+        /* =============================================
+           SECTION — editorial magazine blocks
+           ============================================= */
+        .section {
+            position: relative;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            margin-bottom: var(--section-gap);
+            transition: border-color 0.4s ease;
+        }
+        .section:hover { border-color: var(--border-mid); }
+
+        /* alternating sections — stagger visually */
+        .section:nth-child(even) {
+            background: linear-gradient(135deg, var(--bg-surface) 0%, #111a30 100%);
+        }
+
+        .section h2 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--amber);
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 60px; height: 2px;
+            background: linear-gradient(90deg, var(--amber), transparent);
+        }
+
+        .section h3 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--steel-light);
+            margin: 24px 0 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-indent: 2em;
+            font-weight: 300;
+        }
+
+        .section ul, .section ol {
+            color: var(--text-secondary);
+            margin: 8px 0 12px 2em;
+            font-weight: 300;
+        }
+
+        /* =============================================
+           METRIC CARDS — with hover animation
+           ============================================= */
+        .metric-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(4, 1fr);
+            margin: 16px 0;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 20px 16px;
+            text-align: center;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--steel), transparent);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(74,124,155,0.35);
+            background: var(--bg-card-hover);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .metric-card:hover::before { opacity: 1; }
+        .metric-card .num {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--amber);
+            font-family: var(--font-mono);
+            letter-spacing: -0.5px;
+        }
+        .metric-card .lbl {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 400;
+        }
+
+        /* =============================================
+           INFO CARDS
+           ============================================= */
+        .card-grid {
+            display: grid;
+            gap: 16px;
+            margin: 14px 0;
+        }
+        .card-grid.c2 { grid-template-columns: 1fr 1fr; }
+        .card-grid.c3 { grid-template-columns: 1fr 1fr 1fr; }
+        .card-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+        .card-grid.c5 { grid-template-columns: repeat(5, 1fr); }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 18px 20px;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .info-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(74,124,155,0.3);
+            transform: translateY(-2px);
+        }
+        .info-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--steel-light);
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .info-card .val {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--amber);
+            font-family: var(--font-mono);
+            letter-spacing: -0.5px;
+        }
+        .info-card .desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 300;
+        }
+        .info-card .sublabel {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: var(--font-mono);
+        }
+
+        /* =============================================
+           TBM CARDS — staggered row
+           ============================================= */
+        .tbm-row {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(5, 1fr);
+            margin: 18px 0;
+        }
+        .tbm-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 20px 14px;
+            text-align: center;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+        .tbm-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(74,124,155,0.35);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+        }
+        .tbm-card .name {
+            font-family: var(--font-display);
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+        .tbm-card .tunnel {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        .tbm-card .type-tag {
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .tbm-card:hover .type-tag { transform: scale(1.05); }
+        .type-ds { background: rgba(61,155,143,0.12); color: #5dbbaf; border: 1px solid rgba(61,155,143,0.3); }
+        .type-op { background: rgba(74,124,155,0.12); color: var(--steel-light); border: 1px solid rgba(74,124,155,0.3); }
+        .type-ss { background: rgba(201,149,74,0.12); color: var(--amber); border: 1px solid rgba(201,149,74,0.3); }
+        .tbm-card .stat {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            font-weight: 300;
+        }
+        .tbm-card .stat span { color: var(--text-secondary); font-weight: 400; }
+
+        /* =============================================
+           TABLES — clean editorial style
+           ============================================= */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 14px 0;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            font-weight: 300;
+        }
+        table th {
+            background: rgba(74,124,155,0.1);
+            color: var(--steel-light);
+            padding: 11px 14px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        table td {
+            padding: 9px 14px;
+            text-align: center;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(74,124,155,0.06);
+        }
+        table tr:last-child td { border-bottom: none; }
+        table tr { transition: background 0.2s ease; }
+        table tr:hover td { background: rgba(74,124,155,0.05); }
+        table td strong { color: var(--text-primary); font-weight: 600; }
+
+        /* =============================================
+           BAR CHARTS — refined
+           ============================================= */
+        .bar-stack {
+            display: flex;
+            height: 32px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+            background: rgba(0,0,0,0.2);
+        }
+        .bar-stack .seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            transition: filter 0.3s ease;
+        }
+        .bar-stack .seg:hover { filter: brightness(1.2); }
+        .seg1 { background: #2d8a6e; }
+        .seg2 { background: #3a7ca5; }
+        .seg3 { background: #b8863a; }
+        .seg4 { background: #b54a3a; }
+        .seg5 { background: #7c5cbf; }
+        .seg6 { background: #3d9b8f; }
+
+        .legend {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin: 6px 0 14px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .legend .dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        /* =============================================
+           TAG / HIGHLIGHT
+           ============================================= */
+        .tag {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .highlight-box {
+            background: rgba(74,124,155,0.06);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+
+        /* =============================================
+           SCORE BADGES (for method selection)
+           ============================================= */
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid;
+        }
+        .score-badge.open  { background: rgba(74,124,155,0.1);  border-color: rgba(74,124,155,0.3);  color: var(--steel-light); }
+        .score-badge.both  { background: rgba(201,149,74,0.1);  border-color: rgba(201,149,74,0.3);  color: var(--amber); }
+        .score-badge.shield{ background: rgba(201,122,90,0.1);  border-color: rgba(201,122,90,0.3);  color: var(--copper); }
+        .score-badge.safe  { background: rgba(61,155,143,0.1);  border-color: rgba(61,155,143,0.3);  color: #5dbbaf; }
+
+        /* =============================================
+           COUNTERMEASURE CARDS
+           ============================================= */
+        .cm-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            transition: all 0.35s ease;
+        }
+        .cm-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(74,124,155,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+        }
+        .cm-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--steel-light);
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+        .cm-card h4 .icon { margin-right: 8px; }
+        .cm-card .desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        /* =============================================
+           CONCLUSION — special treatment
+           ============================================= */
+        .section-conclusion {
+            border: 1px solid rgba(201,149,74,0.2);
+            background: linear-gradient(135deg, #0f1629 0%, #141d33 50%, #0f1629 100%);
+            position: relative;
+        }
+        .section-conclusion::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--amber), transparent);
+        }
+
+        /* =============================================
+           FOOTER
+           ============================================= */
+        .footer {
+            text-align: center;
+            padding: 32px 0 40px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 0 auto 20px;
+        }
+
+        /* =============================================
+           ANIMATIONS
+           ============================================= */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .section {
+            animation: fadeSlideUp 0.6s ease both;
+        }
+        .section:nth-child(1) { animation-delay: 0.05s; }
+        .section:nth-child(2) { animation-delay: 0.10s; }
+        .section:nth-child(3) { animation-delay: 0.15s; }
+        .section:nth-child(4) { animation-delay: 0.20s; }
+        .section:nth-child(5) { animation-delay: 0.25s; }
+        .section:nth-child(6) { animation-delay: 0.30s; }
+        .section:nth-child(7) { animation-delay: 0.35s; }
+        .section:nth-child(8) { animation-delay: 0.40s; }
+        .section:nth-child(9) { animation-delay: 0.45s; }
+        .section:nth-child(10){ animation-delay: 0.50s; }
+
+        @keyframes shimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .hero h1 {
+            background-size: 200% auto;
+            animation: shimmer 6s ease-in-out infinite alternate;
+        }
+
+        /* =============================================
+           RESPONSIVE
+           ============================================= */
+        @media (max-width: 1024px) {
+            .tbm-row { grid-template-columns: repeat(3, 1fr); }
+            .metric-grid, .card-grid.c4, .card-grid.c5 { grid-template-columns: 1fr 1fr; }
+            .section { padding: 28px 24px; }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 0 14px; }
+            .hero { padding: 48px 20px 40px; }
+            .section { padding: 22px 16px; }
+            .tbm-row, .card-grid.c2, .card-grid.c3, .metric-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 24px; }
+            .hero-sub { font-size: 13px; }
+            table { font-size: 12px; }
+            table th, table td { padding: 6px 8px; }
+        }
+
+        /* print */
+        @media print {
+            body { background: #fff; color: #222; }
+            .section { background: #f8f8f8; border-color: #ddd; break-inside: avoid; }
+            .hero { background: #eee !important; }
+            .hero h1 { -webkit-text-fill-color: #333; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ============================================
+         HERO
+         ============================================ -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-label">Preliminary Design · Feasibility Review</div>
+            <h1>引大济岷工程<br>TBM选型及技术参数专题报告</h1>
+            <p class="hero-sub">初步设计阶段 · 内审稿</p>
+            <p class="hero-meta">四川水发勘测设计研究有限公司 · 中水北方勘测设计研究有限责任公司 ｜ 二〇二六年四月</p>
+            <div class="hero-badges">
+                <span class="badge">Ⅰ等大（1）型</span>
+                <span class="badge">输水线路 260.85km</span>
+                <span class="badge">隧洞总长 151.5km</span>
+                <span class="badge">TBM施工 60.4km</span>
+                <span class="badge">配置 5台 TBM</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================
+         一、工程概况
+         ============================================ -->
+    <section class="section">
+        <h2>一、工程概况</h2>
+
+        <div class="metric-grid">
+            <div class="metric-card"><div class="num">80</div><div class="lbl">设计引水流量（m³/s）</div></div>
+            <div class="metric-card"><div class="num">13.89</div><div class="lbl">年均引水量（亿m³，2040年）</div></div>
+            <div class="metric-card"><div class="num">260.85</div><div class="lbl">输水线路总长（km）</div></div>
+            <div class="metric-card"><div class="num">3413</div><div class="lbl">供水区人口（万人，2050年）</div></div>
+        </div>
+
+        <p>引大济岷工程从大渡河泸定电站库区引水至成都平原，构建以都江堰和引大济岷工程为主要水源的水资源配置保障格局。供水区涉及成都、德阳、眉山、资阳、绵阳、遂宁、内江、雅安8市43个县，新增灌面179万亩，改善灌面591万亩。</p>
+
+        <h3>输水线路组成</h3>
+        <div class="table-wrap">
+        <table>
+            <tr><th>线路</th><th>长度（km）</th><th>渠首流量（m³/s）</th><th>途经</th></tr>
+            <tr><td>总干线</td><td>133.05</td><td>80</td><td style="text-align:left">泸定→天全→宝兴→芦山→邛崃→大邑→崇州</td></tr>
+            <tr><td>北干线</td><td>25.3</td><td>37</td><td style="text-align:left">经李家岩水库向成都主城区供水</td></tr>
+            <tr><td>南干线</td><td>102.5</td><td>48</td><td style="text-align:left">大邑→新津→双流→天府新区</td></tr>
+        </table>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);text-indent:0">沿线设3座动能回收电站，总装机367MW（拉塔河320MW + 钱桥29MW + 凤凰台18MW）</p>
+
+        <h3>主要TBM施工隧洞</h3>
+        <div class="table-wrap">
+        <table>
+            <tr><th>隧洞</th><th>长度（km）</th><th>最大埋深（m）</th><th>施工方案</th><th>TBM施工段长</th></tr>
+            <tr><td><strong>二郎山隧洞</strong></td><td>22.42</td><td>2040</td><td>TBM‑1（双护盾）+ TBM‑2（敞开式）</td><td>20.21km</td></tr>
+            <tr><td><strong>老君山隧洞</strong></td><td>16.66</td><td>1640</td><td>TBM‑3（敞开式）</td><td>9.15km</td></tr>
+            <tr><td><strong>莲花山隧洞</strong></td><td>39.54</td><td>844</td><td>TBM‑4（敞开式）+ TBM‑5（单护盾）</td><td>30.19km</td></tr>
+        </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         二、初设阶段地质条件
+         ============================================ -->
+    <section class="section">
+        <h2>二、初设阶段地质条件</h2>
+
+        <h3>二郎山隧洞</h3>
+        <div class="bar-stack">
+            <div class="seg seg1" style="width:3.5%">Ⅱ 3.5%</div>
+            <div class="seg seg2" style="width:59.9%">Ⅲ 59.9%</div>
+            <div class="seg seg3" style="width:23.3%">Ⅳ 23.3%</div>
+            <div class="seg seg4" style="width:14.3%">Ⅴ 14.3%</div>
+        </div>
+        <div class="legend">
+            <span><span class="dot" style="background:#2d8a6e"></span>Ⅱ类 787m</span>
+            <span><span class="dot" style="background:#3a7ca5"></span>Ⅲ类 13192m</span>
+            <span><span class="dot" style="background:#b8863a"></span>Ⅳ类 5221m</span>
+            <span><span class="dot" style="background:#b54a3a"></span>Ⅴ类 3213m</span>
+        </div>
+
+        <div class="card-grid c4">
+            <div class="info-card"><h4>地应力</h4><div class="val">12800m</div><div class="desc">极高地应力段占57%</div></div>
+            <div class="info-card"><h4>磨蚀指数 CAI</h4><div class="val">4.3～5.4</div><div class="desc">非常高～极高磨蚀</div></div>
+            <div class="info-card"><h4>软岩变形</h4><div class="val">2468m</div><div class="desc">强～极强段，占11%</div></div>
+            <div class="info-card"><h4>TBM适宜性</h4><div class="val">66%</div><div class="desc">适宜+基本适宜</div></div>
+        </div>
+
+        <h3>老君山隧洞</h3>
+        <div class="bar-stack">
+            <div class="seg seg1" style="width:4.6%">Ⅱ 4.6%</div>
+            <div class="seg seg2" style="width:63.4%">Ⅲ 63.4%</div>
+            <div class="seg seg3" style="width:27.2%">Ⅳ 27.2%</div>
+            <div class="seg seg4" style="width:4.8%">Ⅴ 4.8%</div>
+        </div>
+        <div class="legend">
+            <span><span class="dot" style="background:#2d8a6e"></span>Ⅱ类 761m</span>
+            <span><span class="dot" style="background:#3a7ca5"></span>Ⅲ类 10564m</span>
+            <span><span class="dot" style="background:#b8863a"></span>Ⅳ类 4535m</span>
+            <span><span class="dot" style="background:#b54a3a"></span>Ⅴ类 803m</span>
+        </div>
+        <div class="card-grid c4">
+            <div class="info-card"><h4>岩体磨蚀性</h4><div class="val">CAI 5.2～5.4</div><div class="desc">极高磨蚀等级</div></div>
+            <div class="info-card"><h4>地应力</h4><div class="val">67%</div><div class="desc">高地应力段</div></div>
+            <div class="info-card"><h4>软岩变形</h4><div class="val">759m</div><div class="desc">占全隧4.6%</div></div>
+            <div class="info-card"><h4>TBM适宜性</h4><div class="val">68%</div><div class="desc">适宜+基本适宜</div></div>
+        </div>
+
+        <h3>莲花山隧洞</h3>
+        <div class="card-grid c2">
+            <div class="info-card">
+                <h4>前段（K₂gc砾岩为主）</h4>
+                <div class="val">45.6MPa</div>
+                <div class="desc">饱和抗压强度，中硬岩</div>
+            </div>
+            <div class="info-card">
+                <h4>后段（J₃sn/J₃p/J₂s砂泥岩）</h4>
+                <div class="val">60.2%</div>
+                <div class="desc">Ⅴ类围岩占比；软岩为主</div>
+            </div>
+        </div>
+        <div class="card-grid c4">
+            <div class="info-card"><h4>后段软岩变形</h4><div class="val">10988m</div><div class="desc">轻微变形</div><div class="sublabel">中等3567m + 严重359m</div></div>
+            <div class="info-card"><h4>有害气体</h4><div class="val">3.5km</div><div class="desc">高瓦斯洞段</div><div class="sublabel">微瓦斯13.8km</div></div>
+            <div class="info-card"><h4>岩爆（后段）</h4><div class="val">3.7km</div><div class="desc">中等岩爆</div><div class="sublabel">轻微0.8km</div></div>
+            <div class="info-card"><h4>后段埋深</h4><div class="val">228m</div><div class="desc">平均埋深</div><div class="sublabel">最大595m</div></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         三、TBM选型方法
+         ============================================ -->
+    <section class="section">
+        <h2>三、TBM选型方法</h2>
+
+        <div class="card-grid c2">
+            <div class="info-card" style="padding:22px 24px">
+                <h4>方法一：规范阈值法（SL/T839-2025）</h4>
+                <div class="desc" style="margin-top:6px">针对A₄超硬岩、B₄岩爆、C₄大变形、D₄构造破碎带4项按比例评分</div>
+                <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+                    <span class="score-badge open">≥70 → 敞开式</span>
+                    <span class="score-badge both">60～70 → 两者均可</span>
+                    <span class="score-badge shield">&lt;60 → 护盾式</span>
+                </div>
+            </div>
+            <div class="info-card" style="padding:22px 24px">
+                <h4>方法二：多因素适宜性指数法</h4>
+                <div class="desc" style="margin-top:6px">综合六大因素加权计算：岩体质量 · 完整性 · 磨蚀性 · 岩爆 · 大变形 · 突涌水</div>
+                <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+                    <span class="score-badge safe">≥70 → 适宜</span>
+                    <span class="score-badge both">60～70 → 可行</span>
+                    <span class="score-badge shield">&lt;60 → 不适宜</span>
+                </div>
+            </div>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);text-indent:0;margin-top:4px">权重：岩爆0.35 + 大变形0.35 + 构造破碎带0.2 + 超硬岩0.1（方法一）；方法二按两两对比构建六阶矩阵确定权重。</p>
+    </section>
+
+    <!-- ============================================
+         四、TBM选型详细分析
+         ============================================ -->
+    <section class="section">
+        <h2>四、TBM选型详细分析</h2>
+
+        <div class="tbm-row">
+            <div class="tbm-card">
+                <div class="name">TBM‑1</div>
+                <div class="tunnel">二郎山 · 进口段</div>
+                <div><span class="type-tag type-ds">双护盾</span></div>
+                <div class="stat">掘进段长: <span>10.52 km</span></div>
+                <div class="stat">开挖直径: <span>Φ8.2m</span></div>
+                <div class="stat">成洞内径: <span>6.7m</span></div>
+                <div class="stat">关键: <span>强岩爆 + 断层</span></div>
+            </div>
+            <div class="tbm-card">
+                <div class="name">TBM‑2</div>
+                <div class="tunnel">二郎山 · 出口段</div>
+                <div><span class="type-tag type-op">敞开式</span></div>
+                <div class="stat">掘进段长: <span>9.77 km</span></div>
+                <div class="stat">开挖直径: <span>Φ8.38m</span></div>
+                <div class="stat">成洞内径: <span>6.5m</span></div>
+                <div class="stat">关键: <span>软硬岩 + 灵活性</span></div>
+            </div>
+            <div class="tbm-card">
+                <div class="name">TBM‑3</div>
+                <div class="tunnel">老君山隧洞</div>
+                <div><span class="type-tag type-op">敞开式</span></div>
+                <div class="stat">掘进段长: <span>9.15 km</span></div>
+                <div class="stat">开挖直径: <span>Φ8.38m</span></div>
+                <div class="stat">成洞内径: <span>6.5m</span></div>
+                <div class="stat">关键: <span>硬岩为主 + 经济性</span></div>
+            </div>
+            <div class="tbm-card">
+                <div class="name">TBM‑4</div>
+                <div class="tunnel">莲花山 · 前段</div>
+                <div><span class="type-tag type-op">敞开式</span></div>
+                <div class="stat">掘进段长: <span>14.96 km</span></div>
+                <div class="stat">开挖直径: <span>Φ8.43m</span></div>
+                <div class="stat">成洞内径: <span>6.7m</span></div>
+                <div class="stat">关键: <span>中硬岩 + 环境敏感</span></div>
+            </div>
+            <div class="tbm-card">
+                <div class="name">TBM‑5</div>
+                <div class="tunnel">莲花山 · 后段</div>
+                <div><span class="type-tag type-ss">单护盾</span></div>
+                <div class="stat">掘进段长: <span>15.99 km</span></div>
+                <div class="stat">开挖直径: <span>Φ8.1m</span></div>
+                <div class="stat">成洞内径: <span>6.7m</span></div>
+                <div class="stat">关键: <span>软岩 + 高瓦斯</span></div>
+            </div>
+        </div>
+
+        <h3>选型方法评分对比</h3>
+        <div class="table-wrap">
+        <table>
+            <tr><th>TBM</th><th>规范阈值法<br>（断层未处理）</th><th>规范阈值法<br>（断层处理）</th><th>多因素法<br>敞开式</th><th>多因素法<br>双护盾</th><th>多因素法<br>单护盾</th><th>推荐机型</th></tr>
+            <tr>
+                <td><strong>TBM‑1</strong></td>
+                <td>67.5</td><td>63</td>
+                <td>51.9 → 62.1*</td>
+                <td>54.2 → 64.6*</td>
+                <td>39.4 → 50.7*</td>
+                <td><span class="tag type-ds" style="font-size:11px">双护盾</span></td>
+            </tr>
+            <tr>
+                <td><strong>TBM‑2</strong></td>
+                <td>63</td><td>63</td>
+                <td>61.0 → 62.8*</td>
+                <td>56.0 → 57.1*</td>
+                <td>49.9 → 51.6*</td>
+                <td><span class="tag type-op" style="font-size:11px">敞开式</span></td>
+            </tr>
+            <tr>
+                <td><strong>TBM‑3</strong></td>
+                <td colspan="2" style="font-weight:600">63</td>
+                <td>67.1</td><td>65.4</td><td>37.3</td>
+                <td><span class="tag type-op" style="font-size:11px">敞开式</span></td>
+            </tr>
+            <tr>
+                <td><strong>TBM‑4</strong></td>
+                <td colspan="2" style="font-weight:600">63</td>
+                <td>76.8</td><td>79.2</td><td>70.5</td>
+                <td><span class="tag type-op" style="font-size:11px">敞开式</span></td>
+            </tr>
+            <tr>
+                <td><strong>TBM‑5</strong></td>
+                <td colspan="2" style="font-weight:600">63</td>
+                <td>39.2</td><td>76.4</td><td>78.2</td>
+                <td><span class="tag type-ss" style="font-size:11px">单护盾</span></td>
+            </tr>
+        </table>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);text-indent:0">* 断层破碎带旁通导洞处理后分数</p>
+
+        <h3>TBM‑1（双护盾）选型关键因素</h3>
+        <div class="bar-stack">
+            <div class="seg seg4" style="width:15%">强 15%</div>
+            <div class="seg seg3" style="width:36.6%">中等 36.6%</div>
+            <div class="seg seg6" style="width:12.9%">轻微 12.9%</div>
+            <div class="seg seg2" style="width:35.5%">无岩爆 35.5%</div>
+        </div>
+        <p>中等及以上岩爆段占比51.6%，是选型的决定性因素。护盾式TBM在岩爆防护方面安全性更高。</p>
+
+        <h3>TBM‑2（敞开式）选型关键因素</h3>
+        <div class="card-grid c2">
+            <div class="info-card"><h4>围岩构成</h4><div class="val">73.1%</div><div class="desc">Ⅱ+Ⅲ类围岩，敞开式效率高</div></div>
+            <div class="info-card"><h4>工期对比</h4><div class="val">37月 vs 33月</div><div class="desc">敞开式 vs 双护盾，差距可接受</div></div>
+        </div>
+        <p>软岩Ⅳ/Ⅴ类高埋深洞段中，敞开式卡机风险较低且经济性更好。配置钢管片功能应对不良地质。</p>
+
+        <h3>TBM‑3（敞开式）选型关键因素</h3>
+        <div class="card-grid c3">
+            <div class="info-card"><h4>围岩条件</h4><div class="val">69%</div><div class="desc">Ⅲ类围岩占比高</div><div class="sublabel">Ⅱ+Ⅲ合计约73%</div></div>
+            <div class="info-card"><h4>不良地质</h4><div class="val">规模小</div><div class="desc">软岩变形仅175m</div><div class="sublabel">无强岩爆洞段</div></div>
+            <div class="info-card"><h4>经济性</h4><div class="val">优劣明显</div><div class="desc">敞开式67.1分</div><div class="sublabel">单护盾仅37.3分</div></div>
+        </div>
+        <p>老君山隧洞全长约16.66km（TBM段9.15km），岩性均为硬质岩，围岩以Ⅲ类为主，不良地质整体规模不大。敞开式在多因素法评分中显著优于单护盾，处理灵活且经济性好。</p>
+
+        <h3>TBM‑4（敞开式）选型关键因素</h3>
+        <div class="card-grid c3">
+            <div class="info-card"><h4>围岩条件</h4><div class="val">45.6MPa</div><div class="desc">K₂gc砾岩中硬岩</div><div class="sublabel">以Ⅲ类围岩为主</div></div>
+            <div class="info-card"><h4>多因素评分</h4><div class="val">76.8</div><div class="desc">敞开式评分最高</div><div class="sublabel">双护盾79.2但非必需</div></div>
+            <div class="info-card"><h4>环境敏感性</h4><div class="val">优</div><div class="desc">占地面积小</div><div class="sublabel">无需管片预制场</div></div>
+        </div>
+        <p>莲花山前段以中硬岩为主，敞开式评分高达76.8分。敞开式在处理断层破碎带等不良地质时具备更大的操作空间和灵活性，同时施工场地占地面积小，环境影响可控。</p>
+
+        <h3>TBM‑5（单护盾）选型关键因素</h3>
+        <div class="bar-stack">
+            <div class="seg seg4" style="width:60.2%">Ⅴ类 60.2%</div>
+            <div class="seg seg3" style="width:25.8%">Ⅳ类 25.8%</div>
+            <div class="seg seg2" style="width:14%">Ⅲ类 14%</div>
+        </div>
+        <div class="card-grid c3">
+            <div class="info-card"><h4>工期对比</h4><div class="val">99月 vs 84月</div><div class="desc">敞开式 vs 单护盾</div><div class="sublabel">敞开式超出总工期</div></div>
+            <div class="info-card"><h4>承载力</h4><div class="val">&lt;3MPa</div><div class="desc">大部分洞段</div><div class="sublabel">撑靴难提供反力</div></div>
+            <div class="info-card"><h4>有害气体</h4><div class="val">高瓦斯</div><div class="desc">3.5km</div><div class="sublabel">护盾式更安全</div></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         五、主机核心技术参数
+         ============================================ -->
+    <section class="section">
+        <h2>五、主机核心技术参数</h2>
+        <div class="table-wrap">
+        <table>
+            <tr><th>参数</th><th>TBM‑1（双护盾）</th><th>TBM‑2/3/4（敞开式）</th><th>TBM‑5（单护盾）</th></tr>
+            <tr><td>开挖直径（mm）</td><td>Φ8200</td><td>Φ8380～Φ8430</td><td>Φ8100</td></tr>
+            <tr><td>成洞内径（mm）</td><td>6700</td><td>6500～6900</td><td>6700</td></tr>
+            <tr><td>刀盘转速（rpm）</td><td>0～8.0</td><td>0～4.0～7.9</td><td>0～4.0～7.9</td></tr>
+            <tr><td>额定总推力（kN）</td><td>≥27000</td><td>≥27488</td><td>58810</td></tr>
+            <tr><td>脱困推力（kN）</td><td>—</td><td>—</td><td>68040</td></tr>
+            <tr><td>额定扭矩（kNm）</td><td>—</td><td>8426</td><td>—</td></tr>
+            <tr><td>脱困扭矩（kNm）</td><td>—</td><td>12638</td><td>额定×1.5</td></tr>
+            <tr><td>整机功率（kW）</td><td>约5000</td><td>约5087</td><td>约5500</td></tr>
+            <tr><td>最小转弯半径（m）</td><td>500</td><td>500</td><td>500</td></tr>
+            <tr><td>适应最大坡度</td><td>±3%</td><td>±3%</td><td>±5%</td></tr>
+            <tr><td>刀具规格</td><td>17″/19″滚刀</td><td>17″/19″滚刀</td><td>19″滚刀</td></tr>
+            <tr><td>刀具最大载荷（kN）</td><td>250/315</td><td>250/315</td><td>250/315</td></tr>
+            <tr><td>最大推进速度（mm/min）</td><td>100</td><td>100</td><td>100</td></tr>
+            <tr><td>最大扩挖量（半径mm）</td><td>100</td><td>100</td><td>200</td></tr>
+            <tr><td>支护结构</td><td>C50~C80管片<br>厚55cm·环宽1.8m</td><td>喷锚+钢拱架+模筑二衬</td><td>C50管片<br>厚55cm·环宽1.5m</td></tr>
+            <tr><td>盾体形式</td><td>双护盾（前中尾盾）</td><td>顶/侧/底护盾</td><td>单护盾（前中尾盾）</td></tr>
+            <tr><td>整机长度（m）</td><td>约183（含后配套）</td><td>约205（含后配套）</td><td>约183（含后配套）</td></tr>
+            <tr><td>整机重量（t）</td><td>约1700</td><td>约1900</td><td>约1700</td></tr>
+        </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         六、不良地质应对措施
+         ============================================ -->
+    <section class="section">
+        <h2>六、不良地质问题及应对措施</h2>
+        <div class="card-grid c3">
+            <div class="cm-card">
+                <h4><span class="icon">◈</span>岩爆应对</h4>
+                <div class="desc">护盾结构采用Q460高强合金钢；重载双排主推滚子轴承；微震监测系统（24h不间断）；超前释放地应力（钻孔+喷水）；涨壳式预应力中空锚杆+纤维喷砼+钢拱架联合支护。</div>
+            </div>
+            <div class="cm-card">
+                <h4><span class="icon">◈</span>软岩变形应对</h4>
+                <div class="desc">刀盘与盾体偏心设计（顶间隙增大）；台阶式盾体（前大后小递减）；最大扩挖200mm；盾壳减阻注浆（摩阻系数降至0.15以下）；大推力大扭矩配置；护盾卡机预警系统（超声波+压力传感器）。</div>
+            </div>
+            <div class="cm-card">
+                <h4><span class="icon">◈</span>突泥涌水应对</h4>
+                <div class="desc">总排水能力≥940m³/h；应急挡渣封堵装置；超前地质预报（TEAM‑2000电法系统）；超前钻孔注浆封堵；应急避险舱（25人96小时）；三级排水体系。</div>
+            </div>
+            <div class="cm-card">
+                <h4><span class="icon">◈</span>有害气体应对</h4>
+                <div class="desc">实时监测CH₄/H₂S/CO/CO₂/NO₂/O₂等；CH₄达0.3%声光报警，0.5%断电；防爆部件配置；2.2m直径风管强通风（工作面风量1232m³/min）。</div>
+            </div>
+            <div class="cm-card">
+                <h4><span class="icon">◈</span>断层破碎带</h4>
+                <div class="desc">规模断层（≥30m宽）采用旁通导洞钻爆法预处理，TBM步进/顶进通过；超前大管棚（φ108，L=20～30m）+超前锚杆；固结灌浆L=4.5m。</div>
+            </div>
+            <div class="cm-card">
+                <h4><span class="icon">◈</span>高地温处理</h4>
+                <div class="desc">中高温带（Ⅱ类，37～49℃）采用人工制冷；低高温带（Ⅰ类）加强通风；TBM设备配置水冷系统。</div>
+            </div>
+        </div>
+
+        <h3>软岩变形统计（TBM施工段）</h3>
+        <div class="table-wrap">
+        <table>
+            <tr><th>TBM</th><th>强变形（m）</th><th>中等变形（m）</th><th>轻微变形（m）</th><th>合计（m）</th></tr>
+            <tr><td><strong>TBM‑1</strong></td><td>169</td><td>461</td><td>/</td><td>630</td></tr>
+            <tr><td><strong>TBM‑2</strong></td><td>31</td><td>708</td><td>1901</td><td>2640</td></tr>
+            <tr><td><strong>TBM‑3</strong></td><td>/</td><td>175</td><td>/</td><td>175</td></tr>
+            <tr><td><strong>TBM‑4</strong></td><td>/</td><td>/</td><td>2334</td><td>2334</td></tr>
+            <tr><td><strong>TBM‑5</strong></td><td>359</td><td>3567</td><td>10988</td><td>14914</td></tr>
+        </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         七、支护设计要点
+         ============================================ -->
+    <section class="section">
+        <h2>七、支护设计要点</h2>
+        <div class="card-grid c2">
+            <div class="info-card" style="padding:22px 24px">
+                <h4>护盾式TBM（双护盾/单护盾）支护</h4>
+                <div class="desc" style="margin-top:6px">
+                    C50～C80钢筋混凝土管片，厚55cm，环宽1.5～1.8m。<br>
+                    管片分6块（含仰拱块、封顶块、邻接块、标准块）。<br>
+                    矩形分块，错缝拼接。M30弯螺栓连接（环向12个+纵向16个）。<br>
+                    管片背后充填20cm豆粒石+回填灌浆。
+                </div>
+            </div>
+            <div class="info-card" style="padding:22px 24px">
+                <h4>敞开式TBM支护</h4>
+                <div class="desc" style="margin-top:6px">
+                    "喷锚+挂网钢筋+工字钢"联合支护。<br>
+                    Ⅲ类：喷C30W8砼12cm + 锚杆L=3.5m<br>
+                    Ⅳ类：厚18cm + 锚杆L=4.0m + H125@1.8m钢支撑<br>
+                    Ⅴ类：厚20cm + 锚杆L=4.5m + H150@0.9m + 超前大管棚L=20m<br>
+                    变形段：聚丙烯纤维砼 + 预应力锚索 + HW200钢支撑
+                </div>
+            </div>
+        </div>
+
+        <h3>主要支护措施对照</h3>
+        <div class="table-wrap">
+        <table>
+            <tr><th>支护类型</th><th>敞开式TBM</th><th>护盾式TBM</th></tr>
+            <tr><td>一次支护</td><td>喷砼+锚杆+钢筋网+钢拱架</td><td>管片安装+豆粒石回填</td></tr>
+            <tr><td>二次衬砌</td><td>模筑C30混凝土</td><td>管片即为永久衬砌</td></tr>
+            <tr><td>Ⅴ类围岩支护</td><td>喷砼20cm+锚杆L4.5m+H150@0.9m+管棚L20m</td><td>C50～C60纤维管片+径向锚杆+固结灌浆L4.5m</td></tr>
+            <tr><td>断层破碎带</td><td>φ108大管棚L30m+HW200@0.45m+预应力锚索</td><td>C80管片+锚杆+锚索+固结灌浆</td></tr>
+        </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         八、敞开式 vs 护盾式
+         ============================================ -->
+    <section class="section">
+        <h2>八、敞开式 vs 护盾式 — 综合对比</h2>
+        <div class="table-wrap">
+        <table>
+            <tr><th>对比维度</th><th>敞开式TBM</th><th>护盾式TBM</th></tr>
+            <tr><td>围岩适应性</td><td>Ⅱ～Ⅲ类围岩效率高；Ⅳ～Ⅴ类支护量大</td><td>软硬均适应；Ⅳ～Ⅴ类有优势</td></tr>
+            <tr><td>岩爆安全性</td><td style="color:#b54a3a">差/中 — 围岩出露，人员设备暴露</td><td style="color:#5dbbaf">好 — 护盾+管片全封闭防护</td></tr>
+            <tr><td>软岩变形卡机</td><td style="color:#5dbbaf">低 — 护盾短，灵活性高</td><td style="color:#b54a3a">高 — 护盾长，卡机风险大</td></tr>
+            <tr><td>突涌水处理</td><td>中 — 操作空间大，超前处理便利</td><td>中 — 管片封闭隔离好，处理受限</td></tr>
+            <tr><td>施工质量</td><td>优 — 复合衬砌可靠性高</td><td>良 — 管片接缝/注浆密实度是关键</td></tr>
+            <tr><td>施工场地</td><td>小 — 无需管片预制/堆场</td><td>大 — 需管片预制场和堆存区</td></tr>
+            <tr><td>施工速度</td><td>慢 — 掘进+二衬分步进行</td><td>快 — 掘进与衬砌同步（双护盾最快）</td></tr>
+            <tr><td>经济性</td><td>好 — Ⅱ/Ⅲ类围岩衬砌量小</td><td>一般 — 管片成本高</td></tr>
+            <tr><td>环境敏感性</td><td>优 — 占地面积小</td><td>差 — 占地大，敏感区受限</td></tr>
+            <tr><td>超前处理能力</td><td>强 — 操作空间大，设备布置灵活</td><td>弱 — 受护盾限制</td></tr>
+        </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         九、国内同类工程
+         ============================================ -->
+    <section class="section">
+        <h2>九、国内同类工程应用参考</h2>
+        <div class="table-wrap">
+        <table>
+            <tr><th>工程名称</th><th>掘进长度</th><th>机型</th><th>开挖直径</th><th>地质条件</th></tr>
+            <tr><td>秦岭1#隧道</td><td>10.9km</td><td>敞开式</td><td>Φ8.8m</td><td>花岗岩、花岗片麻岩</td></tr>
+            <tr><td>锦屏水电站</td><td>5.9km</td><td>敞开式</td><td>Φ12.4m</td><td>大理岩、灰岩、砂岩、板岩</td></tr>
+            <tr><td>陕西引汉济渭</td><td>38km</td><td>敞开式</td><td>Φ8.02m</td><td>变质砂岩、花岗岩、闪长岩</td></tr>
+            <tr><td>吉林引松供水</td><td>69.9km</td><td>敞开式×3</td><td>Φ7.93m</td><td>灰岩、花岗岩、凝灰岩</td></tr>
+            <tr><td>甘肃引洮供水</td><td>16km</td><td>双护盾</td><td>Φ5.75m</td><td>大理岩、花岗片麻岩、砂砾岩</td></tr>
+            <tr><td>新疆ABH输水</td><td>41.5km</td><td>敞开式×2</td><td>Φ6.53m</td><td>花岗岩、凝灰岩、砂岩</td></tr>
+            <tr><td>兰州水源地</td><td>24.6km</td><td>双护盾×2</td><td>Φ5.49m</td><td>—</td></tr>
+            <tr><td>西藏DXL隧洞</td><td>4.2km</td><td>双护盾</td><td>Φ9.13m</td><td>混合片麻岩（海拔5500m）</td></tr>
+            <tr><td>西秦岭隧道</td><td>28.2km</td><td>敞开式×2</td><td>Φ10.23m</td><td>千枚岩、灰岩、变质砂岩</td></tr>
+            <tr><td>云南滇中引水</td><td>35.4km</td><td>敞开式×2</td><td>Φ9.38m</td><td>泥岩、砂岩（最大埋深1512m）</td></tr>
+        </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         十、初设阶段结论
+         ============================================ -->
+    <section class="section section-conclusion">
+        <h2 style="font-size:24px">十、初设阶段结论</h2>
+
+        <div class="highlight-box" style="text-align:center;padding:24px">
+            <p style="font-size:19px;font-weight:700;text-indent:0;color:var(--amber);font-family:var(--font-display)">引大济岷工程初设阶段共配置5台TBM</p>
+            <p style="font-size:16px;text-indent:0;margin-top:4px;color:var(--steel-light);letter-spacing:2px;font-weight:500">
+                <span class="type-ds" style="padding:3px 14px;border-radius:16px;font-size:14px">双护盾 × 1</span>
+                <span style="margin:0 8px"></span>
+                <span class="type-op" style="padding:3px 14px;border-radius:16px;font-size:14px">敞开式 × 3</span>
+                <span style="margin:0 8px"></span>
+                <span class="type-ss" style="padding:3px 14px;border-radius:16px;font-size:14px">单护盾 × 1</span>
+            </p>
+        </div>
+
+        <div class="tbm-row" style="margin-top:18px">
+            <div class="tbm-card" style="border-color:rgba(61,155,143,0.25)">
+                <div style="font-size:30px;font-weight:700;color:#5dbbaf;font-family:var(--font-mono);letter-spacing:-1px">TBM‑1</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin:2px 0">双护盾</div>
+                <div style="font-size:12px;color:var(--text-muted)">二郎山进口段</div>
+                <div style="font-size:12px;color:var(--text-muted);font-weight:300">强岩爆安全优先</div>
+            </div>
+            <div class="tbm-card" style="border-color:rgba(74,124,155,0.25)">
+                <div style="font-size:30px;font-weight:700;color:var(--steel-light);font-family:var(--font-mono);letter-spacing:-1px">TBM‑2</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin:2px 0">敞开式</div>
+                <div style="font-size:12px;color:var(--text-muted)">二郎山出口段</div>
+                <div style="font-size:12px;color:var(--text-muted);font-weight:300">钢管片配置</div>
+            </div>
+            <div class="tbm-card" style="border-color:rgba(74,124,155,0.25)">
+                <div style="font-size:30px;font-weight:700;color:var(--steel-light);font-family:var(--font-mono);letter-spacing:-1px">TBM‑3</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin:2px 0">敞开式</div>
+                <div style="font-size:12px;color:var(--text-muted)">老君山隧洞</div>
+                <div style="font-size:12px;color:var(--text-muted);font-weight:300">经济性优</div>
+            </div>
+            <div class="tbm-card" style="border-color:rgba(74,124,155,0.25)">
+                <div style="font-size:30px;font-weight:700;color:var(--steel-light);font-family:var(--font-mono);letter-spacing:-1px">TBM‑4</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin:2px 0">敞开式</div>
+                <div style="font-size:12px;color:var(--text-muted)">莲花山前段</div>
+                <div style="font-size:12px;color:var(--text-muted);font-weight:300">环境友好</div>
+            </div>
+            <div class="tbm-card" style="border-color:rgba(201,149,74,0.25)">
+                <div style="font-size:30px;font-weight:700;color:var(--amber);font-family:var(--font-mono);letter-spacing:-1px">TBM‑5</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin:2px 0">单护盾</div>
+                <div style="font-size:12px;color:var(--text-muted)">莲花山后段</div>
+                <div style="font-size:12px;color:var(--text-muted);font-weight:300">软岩+高瓦斯</div>
+            </div>
+        </div>
+
+        <ol style="font-size:15px;margin-top:18px">
+            <li style="margin-bottom:8px"><strong style="color:var(--text-primary)">TBM‑1</strong>（二郎山进口段·10.52km）：岩性以硬岩为主，围岩以Ⅲ类为主，强岩爆洞段占比高。考虑强岩爆的施工安全性，推荐<strong style="color:#5dbbaf">双护盾TBM</strong>。</li>
+            <li style="margin-bottom:8px"><strong style="color:var(--text-primary)">TBM‑2</strong>（二郎山出口段·9.77km）：包含硬岩与页岩等软岩，断层破碎带、突涌水、岩爆等。考虑快速掘进及复杂不良地质处理灵活性，推荐<strong style="color:var(--steel-light)">敞开式TBM</strong>（配置钢管片安装功能）。</li>
+            <li style="margin-bottom:8px"><strong style="color:var(--text-primary)">TBM‑3</strong>（老君山隧洞·9.15km）：岩性均为硬岩，以Ⅲ类围岩为主（69%），不良地质规模不大。从处理灵活性和经济性，推荐<strong style="color:var(--steel-light)">敞开式TBM</strong>。</li>
+            <li style="margin-bottom:8px"><strong style="color:var(--text-primary)">TBM‑4</strong>（莲花山前段·14.96km）：以中硬岩为主，围岩以Ⅲ类为主。从不良地质处理灵活性和经济性，推荐<strong style="color:var(--steel-light)">敞开式TBM</strong>。</li>
+            <li style="margin-bottom:8px"><strong style="color:var(--text-primary)">TBM‑5</strong>（莲花山后段·15.99km）：以软岩为主（Ⅴ类占60.2%），存在软岩变形、高瓦斯。从TBM适应性和施工效率，推荐<strong style="color:var(--amber)">单护盾TBM</strong>。</li>
+        </ol>
+    </section>
+
+    <footer class="footer">
+        基于《四川省引大济岷工程初步设计阶段 TBM选型及技术参数专题研究报告（内审稿）》整理 · 可视化呈现<br>
+        报告编制：四川水发勘测设计研究有限公司 · 中水北方勘测设计研究有限责任公司 ｜ 二〇二六年四月
+    </footer>
+
+</div>
+</body>
+</html>
